@@ -7,6 +7,8 @@ name = "pypi"
 django = "*"
 djangorestframework = "*"
 pyyaml = "*"
+django-social-authsch = "*"
+pillow = "*"
 
 [dev-packages]
 "flake8" = "*"
@@ -14,4 +16,4 @@ pycodestyle = "*"
 pylint = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3"
