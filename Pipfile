@@ -9,6 +9,7 @@ djangorestframework = "*"
 pyyaml = "*"
 django-social-authsch = "*"
 pillow = "*"
+django-taggit = "*"
 
 [dev-packages]
 "flake8" = "*"
