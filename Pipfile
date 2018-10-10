@@ -15,6 +15,9 @@ django-taggit = "*"
 "flake8" = "*"
 pycodestyle = "*"
 pylint = "*"
+django-extensions = "*"
+graphviz = "*"
+pygraphviz = "*"
 
 [requires]
 python_version = "3"

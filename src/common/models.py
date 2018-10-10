@@ -13,17 +13,23 @@ class AbstractComment(models.Model):
         related_name="%(app_label)s_%(class)s_comments",
         on_delete=models.CASCADE
     )
-    upvoters = models.ManyToManyField(
-        Profile,
-        related_name="%(app_label)s_%(class)s_upvotes",
-    )
-    downvoters = models.ManyToManyField(
-        Profile,
-        related_name="%(app_label)s_%(class)s_downvotes",
-    )
 
     class Meta:
         abstract = True
 
     def __str__(self):
         return self.text
+
+
+class Votes(models.Model):
+        upvoters = models.ManyToManyField(
+            Profile,
+            related_name="upvotes",
+        )
+        downvoters = models.ManyToManyField(
+            Profile,
+            related_name="downvotes",
+        )
+
+        def __str__(self):
+            return self.comment or self.answer or self.question
