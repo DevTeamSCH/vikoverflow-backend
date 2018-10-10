@@ -9,7 +9,6 @@ class Profile(models.Model):
     is_score_visible = models.BooleanField()
     ranked = models.BooleanField()
 
-
     @property
     def full_name(self):
         return self.user.get_full_name()
