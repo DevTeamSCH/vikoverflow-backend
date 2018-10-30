@@ -16,8 +16,6 @@ django-taggit = "*"
 pycodestyle = "*"
 pylint = "*"
 django-extensions = "*"
-graphviz = "*"
-pygraphviz = "*"
 
 [requires]
 python_version = "3"
