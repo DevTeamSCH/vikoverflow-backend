@@ -16,6 +16,8 @@ django-taggit = "*"
 pycodestyle = "*"
 pylint = "*"
 django-extensions = "*"
+graphviz = {version = "*", sys_platform = "!= 'win32'"}
+pygraphviz = {version = "*", sys_platform = "!= 'win32'"}
 
 [requires]
 python_version = "3"
