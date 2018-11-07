@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    environment:
+      - CONFIG_FILE=/code/config.yaml
+    command: python src/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
