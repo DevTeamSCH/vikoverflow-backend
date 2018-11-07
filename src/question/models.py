@@ -1,7 +1,6 @@
 from django.db import models
 from taggit.managers import TaggableManager
 from taggit.models import TagBase
-
 from common.models import AbstractComment, Votes
 from account.models import Profile
 
