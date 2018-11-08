@@ -2,14 +2,15 @@ from taggit.models import Tag
 from rest_framework import mixins, viewsets, permissions
 from . import serializers
 from common.mixins import RelativeURLFieldMixin
+from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
 from rest_framework.generics import UpdateAPIView, DestroyAPIView
 
 
 
 class TagViewSet(
     RelativeURLFieldMixin,
-    DestroyAPIView,
-    UpdateAPIView,
+    UpdateModelMixin,
+    DestroyModelMixin,
     viewsets.GenericViewSet
 ):
     serializer_class = serializers.TagSerializer
