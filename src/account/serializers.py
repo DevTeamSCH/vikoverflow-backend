@@ -13,5 +13,4 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class ProfileSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Profile
-        #fields = ('url', 'user', 'avatar', 'about_me', 'is_score_visible', 'ranked')
         fields = '__all__'

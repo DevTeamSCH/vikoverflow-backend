@@ -1,5 +1,4 @@
 from rest_framework import viewsets
-from rest_framework import mixins
 from rest_framework import generics
 
 
@@ -9,7 +8,7 @@ from . import serializers
 
 
 class ProfileViewSet(
-    #RelativeURLFieldMixin,
+    RelativeURLFieldMixin,
     generics.ListAPIView,
     generics.UpdateAPIView,
     generics.RetrieveAPIView,
@@ -20,8 +19,6 @@ class ProfileViewSet(
 
     def get_queryset(self):
         queryset = models.Profile.objects.all()
-
-        #is_staff = self.request.query_params.get('is_staff')
 
         query_params = self.request.query_params
 
