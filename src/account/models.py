@@ -1,8 +1,13 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+class ProfileManager(models.Manager):
+    def get_by_natural_key(self, username):
+        return self.get(user__username=username)
 
 class Profile(models.Model):
+    objects = ProfileManager()
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField()
     about_me = models.TextField()
@@ -14,4 +19,4 @@ class Profile(models.Model):
         return self.user.get_full_name()
 
     def __str__(self):
-        self.full_name
+        return self.full_name
