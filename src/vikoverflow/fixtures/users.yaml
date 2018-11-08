@@ -1,0 +1,29 @@
+- model: auth.user
+  pk: 5
+  fields:
+    username: 'alex'
+    password: 'alexpass'
+    is_superuser: true
+    first_name: 'Alex'
+    last_name: 'Jackson'
+- model: auth.user
+  pk: 6
+  fields:
+    username: 'lya'
+    password: 'lyapass'
+    first_name: 'Amy'
+    last_name: 'Scott'
+- model: auth.user
+  pk: 7
+  fields:
+    username: 'jazz'
+    password: 'jazzpass'
+    first_name: 'Jacob'
+    last_name: 'Smith'
+- model: auth.user
+  pk: 8
+  fields:
+    username: 'vin'
+    password: 'vinpass'
+    first_name: 'Vincent'
+    last_name: 'Lee'

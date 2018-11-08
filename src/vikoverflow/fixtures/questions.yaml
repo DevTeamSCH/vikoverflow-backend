@@ -1,0 +1,53 @@
+- model: common.votes
+  pk: 1
+  fields:
+    downvoters:
+      - ['vin']
+      - ['jazz']
+      - ['lya']
+- model: question.question
+  pk: 1
+  fields:
+    title: 'Lorem ipsum dolor sit amet?'
+    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ullamcorper accumsan pellentesque. Praesent vitae massa ut lorem convallis volutpat. Mauris egestas pulvinar turpis quis pulvinar. Nullam in suscipit metus, ac vulputate purus. Phasellus massa odio, tincidunt et aliquet quis, dictum id est. Sed posuere vehicula sagittis. Vestibulum ut dui nec eros varius volutpat vel id nulla.'
+    created_at: '2018-11-07 20:00:00+01:00'
+    updated_at: '2018-11-07 21:00:00+01:00'
+    owner: ['alex']
+    show_username: true
+    parent: 1
+
+- model: common.votes
+  pk: 2
+  fields:
+    upvoters:
+      - ['lya']
+      - ['jazz']
+    downvoters:
+      - ['alex']
+- model: question.question
+  pk: 2
+  fields:
+    title: 'Proin nec eros ut dolor porta?'
+    text: 'Nulla in est sed enim vestibulum venenatis varius ut tellus. Praesent ac nunc nec urna lacinia pellentesque et sed magna.'
+    created_at: '2018-11-07 20:14:00+01:00'
+    updated_at: '2018-11-07 21:03:00+01:00'
+    owner: ['vin']
+    show_username: true
+    parent: 2
+
+- model: common.votes
+  pk: 3
+  fields:
+    upvoters:
+      - ['alex']
+      - ['lya']
+- model: question.question
+  pk: 3
+  fields:
+    title: 'Quisque id fringilla tellus, sit amet lobortis nisl?'
+    text: 'Mauris non ipsum at justo rhoncus iaculis vitae quis lectus. Maecenas cursus tellus mauris, eget vehicula lacus consequat venenatis. Nulla a nisi sem. Morbi aliquet, erat sed blandit gravida, ante justo pretium eros, in ornare mi velit ut erat. Etiam feugiat sem vitae neque congue, nec facilisis justo accumsan.'
+    created_at: '2018-11-07 21:14:00+01:00'
+    updated_at: '2018-11-07 22:03:00+01:00'
+    owner: ['jazz']
+    show_username: true
+    parent: 3

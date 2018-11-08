@@ -1,0 +1,28 @@
+- model: account.profile
+  pk: 1
+  fields:
+    user: ['alex']
+    about_me: 'hi im alex'
+    is_score_visible: true
+    ranked: false
+- model: account.profile
+  pk: 2
+  fields:
+    user: ['lya']
+    about_me: 'hi im amy'
+    is_score_visible: false
+    ranked: false
+- model: account.profile
+  pk: 3
+  fields:
+    user: ['jazz']
+    about_me: 'hi im jacob'
+    is_score_visible: true
+    ranked: true
+- model: account.profile
+  pk: 4
+  fields:
+    user: ['vin']
+    about_me: 'hi im vincent'
+    is_score_visible: false
+    ranked: true
