@@ -1,7 +1,11 @@
 version: '3'
 
 services:
-  web:
+  db:
+    image: postgres:alpine
+    volumes:
+      - vikoverflow-data:/var/lib/postgresql/data
+  backend:
     build: .
     environment:
       - CONFIG_FILE=/code/config.yaml
@@ -10,3 +14,9 @@ services:
       - .:/code
     ports:
       - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  vikoverflow-data:
+    external: true
