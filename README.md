@@ -9,8 +9,10 @@
 
 ### start with Docker
 
-1. ```$ docker volume create --name vikoverflow-data```
-2. ```$ docker-compose up```
+```
+$ docker volume create --name vikoverflow-data
+$ docker-compose up
+```
 
 #### running commands in docker container
 ```
