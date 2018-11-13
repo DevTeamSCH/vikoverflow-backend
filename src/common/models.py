@@ -3,24 +3,6 @@ from django.db import models
 from account.models import Profile
 
 
-class AbstractComment(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    updated_at = models.DateTimeField(auto_now=True)
-    show_username = models.BooleanField()
-    text = models.TextField()
-    owner = models.ForeignKey(
-        Profile,
-        related_name="%(app_label)s_%(class)s_comments",
-        on_delete=models.CASCADE
-    )
-
-    class Meta:
-        abstract = True
-
-    def __str__(self):
-        return self.text
-
-
 class Votes(models.Model):
         upvoters = models.ManyToManyField(
             Profile,
@@ -32,4 +14,34 @@ class Votes(models.Model):
         )
 
         def __str__(self):
-            return self.comment or self.answer or self.question
+            return self.comment
+
+
+class Comment(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    show_username = models.BooleanField()
+    text = models.TextField()
+    votes = models.OneToOneField(Votes, on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        Profile,
+        related_name="%(app_label)s_%(class)s_comments",
+        on_delete=models.CASCADE
+    )
+    parent_answer = models.ForeignKey(
+        'question.Answer',
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    parent_question = models.ForeignKey(
+        'question.Question',
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+
+    @property
+    def parent(self):
+        return parent_answer or parent_question
+
+    def __str__(self):
+        return self.text
