@@ -9,19 +9,19 @@ fake = Faker()
 
 users = ['admin', 'mod', 'csicska', 'paraszt']
 
-# Votes
-upvoting = {
-    0: [user for user in users if users.index(user) in (1,2)],
-    1: [user for user in users if users.index(user) in ()],
-    2: [user for user in users if users.index(user) in ()],
-    3: [user for user in users if users.index(user) in (0,1,2)]
-}
-
-downvoting = {
-    0: [user for user in users if users.index(user) in (3,)],
-    1: [user for user in users if users.index(user) in ()],
-    2: [user for user in users if users.index(user) in (0,1,3)],
-    3: [user for user in users if users.index(user) in ()]
+voting = {
+    'up': [
+        [user for user in users if users.index(user) in (1,2)],
+        [user for user in users if users.index(user) in ()],
+        [user for user in users if users.index(user) in ()],
+        [user for user in users if users.index(user) in (0,1,2)]
+    ],
+    'down': [
+        [user for user in users if users.index(user) in (3,)],
+        [user for user in users if users.index(user) in ()],
+        [user for user in users if users.index(user) in (0,1,3)],
+        [user for user in users if users.index(user) in ()]
+    ]
 }
 
 class TestModels(TestCase):
@@ -45,12 +45,10 @@ class TestModels(TestCase):
             # Votes
             v = Votes()
             v.save()
-            upvote_users = User.objects.filter(username__in=upvoting[i])
-            downvote_users = User.objects.filter(username__in=downvoting[i])
-            upvote_profiles = Profile.objects.filter(user__in=upvote_users)
-            downvote_profiles = Profile.objects.filter(user__in=downvote_users)
-            v.upvoters.set(upvote_profiles)
-            v.downvoters.set(downvote_profiles)
+            for upvoter in voting['up'][i]:
+                v.upvoters.add(Profile.objects.get(user__username=upvoter))
+            for downvoter in voting['down'][i]:
+                v.downvoters.add(Profile.objects.get(user__username=downvoter))
             v.save()
             # Questions
             Question.objects.create(
