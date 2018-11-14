@@ -9,20 +9,24 @@ fake = Faker()
 
 users = ['admin', 'mod', 'csicska', 'paraszt']
 
-voting = {
-    'up': [
-        [user for user in users if users.index(user) in (1,2)],
-        [user for user in users if users.index(user) in ()],
-        [user for user in users if users.index(user) in ()],
-        [user for user in users if users.index(user) in (0,1,2)]
+voting = [
+    [ # Question 0
+        [user for user in users if users.index(user) in (1,2)], # up
+        [user for user in users if users.index(user) in (3,)] # down
     ],
-    'down': [
-        [user for user in users if users.index(user) in (3,)],
-        [user for user in users if users.index(user) in ()],
-        [user for user in users if users.index(user) in (0,1,3)],
-        [user for user in users if users.index(user) in ()]
+    [ # Question 1
+        [user for user in users if users.index(user) in ()], # up
+        [user for user in users if users.index(user) in ()] # down
+    ],
+    [ # Question 2
+        [user for user in users if users.index(user) in ()], # up
+        [user for user in users if users.index(user) in (0,1,3)] # down
+    ],
+    [ # Question 3
+        [user for user in users if users.index(user) in (0,1,2)], # up
+        [user for user in users if users.index(user) in ()] # down
     ]
-}
+]
 
 class TestModels(TestCase):
 
@@ -45,9 +49,9 @@ class TestModels(TestCase):
             # Votes
             v = Votes()
             v.save()
-            for upvoter in voting['up'][i]:
+            for upvoter in voting[i][0]:
                 v.upvoters.add(Profile.objects.get(user__username=upvoter))
-            for downvoter in voting['down'][i]:
+            for downvoter in voting[i][1]:
                 v.downvoters.add(Profile.objects.get(user__username=downvoter))
             v.save()
             # Questions
