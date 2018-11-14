@@ -14,7 +14,7 @@ class Votes(models.Model):
         )
 
         def __str__(self):
-            return self.comment
+            return self.comment_item
 
 
 class Comment(models.Model):
@@ -22,7 +22,11 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     show_username = models.BooleanField()
     text = models.TextField()
-    votes = models.OneToOneField(Votes, on_delete=models.CASCADE)
+    votes = models.OneToOneField(
+        Votes,
+        related_name='comment_item',
+        on_delete=models.CASCADE
+    )
     owner = models.ForeignKey(
         Profile,
         related_name="%(app_label)s_%(class)s_comments",
@@ -31,12 +35,14 @@ class Comment(models.Model):
     parent_answer = models.ForeignKey(
         'question.Answer',
         on_delete=models.CASCADE,
-        related_name='comments'
+        related_name='comments',
+        null=True
     )
     parent_question = models.ForeignKey(
         'question.Question',
         on_delete=models.CASCADE,
-        related_name='comments'
+        related_name='comments',
+        null=True
     )
 
     @property
