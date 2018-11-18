@@ -19,12 +19,14 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_user_vote(self, obj):
         try:
-            current = Profile.objects.get(
-                user__username=self.context['request'].user.username
-            )
-            if current in obj.votes.upvoters.all():
+            current = self.context['request'].user.username
+            if obj.votes.upvoters.filter(
+                user__username=current
+            ).count() > 0:
                 return 'up'
-            elif current in obj.votes.downvoters.all():
+            elif obj.votes.downvoters.filter(
+                user__username=current
+            ).count() > 0:
                 return 'down'
             else:
                 return False
