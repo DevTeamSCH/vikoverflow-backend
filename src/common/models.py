@@ -14,7 +14,7 @@ class Votes(models.Model):
         )
 
         def __str__(self):
-            return self.comment_item
+            return ''.join([str(self.comment_item), '\'s votes'])
 
 
 class Comment(models.Model):
