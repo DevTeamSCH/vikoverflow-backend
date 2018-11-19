@@ -3,12 +3,12 @@ from rest_framework import serializers
 from . import models
 from account.models import Profile
 
-class CommentSerializer(serializers.ModelSerializer):
+class AbstractCommentSerializer(serializers.ModelSerializer):
     vote_count = serializers.SerializerMethodField()
     user_vote = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.Comment
+        model = models.AbstractComment
         fields = ('text', 'owner', 'show_username', 'vote_count', 'user_vote')
         read_only_fields = ('created_at', 'updated_at')
 

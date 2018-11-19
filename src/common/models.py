@@ -17,14 +17,14 @@ class Votes(models.Model):
             return ''.join([str(self.comment_item), '\'s votes'])
 
 
-class Comment(models.Model):
+class AbstractComment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
     show_username = models.BooleanField()
     text = models.TextField()
     votes = models.OneToOneField(
         Votes,
-        related_name='comment_item',
+        related_name='%(class)s_comment_item',
         on_delete=models.CASCADE
     )
     owner = models.ForeignKey(
@@ -32,22 +32,9 @@ class Comment(models.Model):
         related_name="%(app_label)s_%(class)s_comments",
         on_delete=models.CASCADE
     )
-    parent_answer = models.ForeignKey(
-        'question.Answer',
-        on_delete=models.CASCADE,
-        related_name='comments',
-        null=True
-    )
-    parent_question = models.ForeignKey(
-        'question.Question',
-        on_delete=models.CASCADE,
-        related_name='comments',
-        null=True
-    )
 
-    @property
-    def parent(self):
-        return parent_answer or parent_question
+    class Meta:
+        abstract = True
 
     def __str__(self):
         return self.text
