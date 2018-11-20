@@ -16,7 +16,7 @@ import datetime
 
 call_command('flush')
 
-fake = Faker()
+fake = Faker('hu_HU')
 users = []
 
 # Create admin user
@@ -37,6 +37,8 @@ Profile.objects.create(user=User.objects.get(username='mod'))
 User.objects.create(username='csicska')
 users.append('csicska')
 Profile.objects.create(user=User.objects.get(username='csicska'))
+
+
 
 def generate_owner_votes():
     owner = random.choice(users)
@@ -76,6 +78,11 @@ for i in range(random.choice(range(3,9))):
     Profile.objects.create(user=u)
     users.append(u.username)
 
+# Tags
+tag_choices = []
+for t in range(random.choice(range(5,11))):
+    tag_choices.append(fake.word())
+
 # Questions
 for i in range(random.choice(range(3,11))):
     ov_q = generate_owner_votes()
@@ -87,6 +94,8 @@ for i in range(random.choice(range(3,11))):
     q.votes = ov_q['votes']
     q.created_at = datetime.datetime.now()
     q.save()
+    for t in random.sample(tag_choices, random.randint(0,len(tag_choices))):
+        q.tags.add(t)
     # Comments
     for j in range(random.choice(range(0,4))):
         ov_cq = generate_owner_votes()
