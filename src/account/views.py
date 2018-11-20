@@ -5,9 +5,12 @@ from rest_framework import permissions
 
 from common.mixins import RelativeURLFieldMixin
 from . permissions import IsOwnProfileOrStaff
+from . permissions import ListStaffOnly
 from . import models
 from . import serializers
 
+
+# TODO tests and use only one endpoint/view
 
 class ProfileViewSet(
     RelativeURLFieldMixin,
@@ -17,7 +20,7 @@ class ProfileViewSet(
 ):
     queryset = models.Profile.objects.all()
     serializer_class = serializers.ProfileSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, ListStaffOnly, IsOwnProfileOrStaff]
 
     def get_queryset(self):
 
@@ -38,33 +41,3 @@ class ProfileViewSet(
             queryset = queryset.filter(user__is_active=is_active)
 
         return queryset
-
-    def check_permissions(self, request):
-
-        if request.method in ["PUT"]:
-            self.permission_classes.append(IsOwnProfileOrStaff)
-
-        elif IsOwnProfileOrStaff in self.permission_classes:
-            self.permission_classes.remove(IsOwnProfileOrStaff)
-
-        super().check_permissions(request)
-
-
-class UserViewSet(
-    RelativeURLFieldMixin,
-    generics.RetrieveUpdateAPIView,
-    viewsets.GenericViewSet
-):
-    queryset = models.User.objects.all()
-    serializer_class = serializers.UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def check_permissions(self, request):
-
-        if request.method in ["PUT"]:
-            self.permission_classes.append(permissions.IsAdminUser)
-
-        elif permissions.IsAdminUser in self.permission_classes:
-            self.permission_classes.remove(permissions.IsAdminUser)
-
-        super().check_permissions(request)
