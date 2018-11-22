@@ -3,6 +3,7 @@ from rest_framework import serializers
 from . import models
 from account.models import Profile
 
+
 class AbstractCommentSerializer(serializers.ModelSerializer):
     vote_count = serializers.SerializerMethodField()
     user_vote = serializers.SerializerMethodField()
@@ -21,11 +22,11 @@ class AbstractCommentSerializer(serializers.ModelSerializer):
         try:
             current = self.context['request'].user.username
             if obj.votes.upvoters.filter(
-                user__username=current
+                    user__username=current
             ).count() > 0:
                 return 'up'
             elif obj.votes.downvoters.filter(
-                user__username=current
+                    user__username=current
             ).count() > 0:
                 return 'down'
             else:

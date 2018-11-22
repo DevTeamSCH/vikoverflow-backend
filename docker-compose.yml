@@ -5,6 +5,8 @@ services:
     image: postgres:alpine
     volumes:
       - vikoverflow-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
   backend:
     build: .
     environment:

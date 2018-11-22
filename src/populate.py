@@ -1,10 +1,10 @@
 import os
+
 import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vikoverflow.settings.local")
 django.setup()
 
-from rest_framework.test import APITestCase
 from faker import Faker
 import random
 from common.models import Votes
@@ -39,21 +39,20 @@ users.append('csicska')
 Profile.objects.create(user=User.objects.get(username='csicska'))
 
 
-
 def generate_owner_votes():
     owner = random.choice(users)
     v = Votes()
     v.save()
     upvoters = random.sample(
         users,
-        random.randint(0,len(users))
+        random.randint(0, len(users))
     )
     if owner in upvoters:
         upvoters.remove(owner)
     downvote_choices = [item for item in users if item not in upvoters]
     downvoters = random.sample(
         downvote_choices,
-        random.randint(0,len(downvote_choices))
+        random.randint(0, len(downvote_choices))
     )
     for u in upvoters:
         v.upvoters.add(Profile.objects.get(user__username=u))
@@ -64,8 +63,9 @@ def generate_owner_votes():
         'votes': v
     }
 
+
 # Accounts
-for i in range(random.choice(range(3,9))):
+for i in range(random.choice(range(3, 9))):
     # Users
     fakedata = fake.simple_profile()
     u = User()
@@ -80,11 +80,11 @@ for i in range(random.choice(range(3,9))):
 
 # Tags
 tag_choices = []
-for t in range(random.choice(range(5,11))):
+for t in range(random.choice(range(5, 11))):
     tag_choices.append(fake.word())
 
 # Questions
-for i in range(random.choice(range(3,11))):
+for i in range(random.choice(range(3, 11))):
     ov_q = generate_owner_votes()
     q = Question()
     q.title = fake.text(max_nb_chars=50)
@@ -94,10 +94,10 @@ for i in range(random.choice(range(3,11))):
     q.votes = ov_q['votes']
     q.created_at = datetime.datetime.now()
     q.save()
-    for t in random.sample(tag_choices, random.randint(0,len(tag_choices))):
+    for t in random.sample(tag_choices, random.randint(0, len(tag_choices))):
         q.tags.add(t)
     # Comments
-    for j in range(random.choice(range(0,4))):
+    for j in range(random.choice(range(0, 4))):
         ov_cq = generate_owner_votes()
         Comment.objects.create(
             parent_question=q,
@@ -108,7 +108,7 @@ for i in range(random.choice(range(3,11))):
         )
     # Answers
     accepted_answer = -1
-    answer_count = random.choice(range(0,6))
+    answer_count = random.choice(range(0, 6))
     has_accepted = bool(random.getrandbits(1))
     if has_accepted and answer_count > 0:
         accepted_answer = random.choice(range(answer_count))
@@ -126,7 +126,7 @@ for i in range(random.choice(range(3,11))):
         a.parent = q
         a.save()
         # Comments to answers
-        for l in range(random.choice(range(0,4))):
+        for l in range(random.choice(range(0, 4))):
             ov_ca = generate_owner_votes()
             Comment.objects.create(
                 parent_answer=a,

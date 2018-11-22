@@ -23,6 +23,7 @@ class Answer(AbstractComment):
         null=False
     )
 
+
 class Comment(AbstractComment):
     parent_answer = models.ForeignKey(
         'question.Answer',
@@ -39,14 +40,14 @@ class Comment(AbstractComment):
 
     @property
     def parent(self):
-        return parent_answer or parent_question
+        return self.parent_answer or self.parent_question
 
     def clean(self):
-        if parent_answer == None and parent_question == None:
+        if self.parent_answer is None and self.parent_question is None:
             raise ValidationError(
                 'Comment must have a parent answer or question!'
             )
-        if parent_answer != None and parent_question != None:
+        if self.parent_answer is not None and self.parent_question is not None:
             raise ValidationError(
                 'Comment must only have one parent!'
             )

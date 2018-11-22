@@ -6,6 +6,7 @@ from taggit_serializer.serializers import (TagListSerializerField,
 from . import models
 from account.models import Profile
 
+
 class CommentSerializer(AbstractCommentSerializer):
     class Meta:
         model = models.Comment
@@ -17,6 +18,7 @@ class CommentSerializer(AbstractCommentSerializer):
             'user_vote'
         )
         read_only_fields = ('created_at', 'updated_at')
+
 
 class AnswerSerializer(AbstractCommentSerializer):
     comments = CommentSerializer(many=True)
@@ -33,6 +35,7 @@ class AnswerSerializer(AbstractCommentSerializer):
             'comments'
         )
         read_only_fields = ('created_at', 'updated_at')
+
 
 class QuestionSerializer(TaggitSerializer, AbstractCommentSerializer):
     comments = CommentSerializer(many=True)
