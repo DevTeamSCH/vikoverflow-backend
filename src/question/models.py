@@ -52,6 +52,10 @@ class Comment(AbstractComment):
                 'Comment must only have one parent!'
             )
 
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
 
 # TODO: It may need a middle class: https://django-taggit.readthedocs.io/en/latest/custom_tagging.html#custom-tag
 class Course(TagBase):

@@ -13,8 +13,13 @@ class Votes(models.Model):
             related_name="downvotes",
         )
 
+        def comment_item_name():
+            return self.answer_comment_item\
+            or self.question_comment_item\
+            or self.comment_comment_item
+
         def __str__(self):
-            return ''.join([str(self.comment_item), '\'s votes'])
+            return ''.join([str(self.comment_item_name()), '\'s votes'])
 
 
 class AbstractComment(models.Model):
