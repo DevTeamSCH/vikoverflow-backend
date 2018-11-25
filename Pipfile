@@ -18,6 +18,7 @@ pylint = "*"
 django-extensions = "*"
 graphviz = "*"
 pygraphviz = "*"
+faker = "*"
 
 [requires]
 python_version = "3"
