@@ -8,16 +8,6 @@ from django.contrib.contenttypes.models import ContentType
 from account.models import Profile
 
 
-class ModeratorComment(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    updated_at = models.DateTimeField(auto_now=True)
-    text = models.TextField()
-    owner = models.ForeignKey(Profile, related_name='moderate_comments', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.text
-
-
 class Report(models.Model):
     STATUS_CHOICES = (
         ('OPENED', _('Opened')),
@@ -49,3 +39,13 @@ class Report(models.Model):
     def reopen(self):
         self.status = "OPENED"
         self.closed_at = None
+
+
+class ReportComment(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    text = models.TextField()
+    owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    report = models.ForeignKey(Report, related_name='comments', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.text

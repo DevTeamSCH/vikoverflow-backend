@@ -1,9 +1,10 @@
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet
 
-from moderate.models import Report
+from account.models import Profile
+from moderate.models import Report, ReportComment
 from moderate.permissions import ReportListPermission
 from moderate.serializers import ReportSerializer
 
@@ -37,4 +38,18 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
         report = self.get_object()
         report.reopen()
         report.save()
+        return self.retrieve(request)
+
+    @action(detail=True, methods=['post'])
+    def comment(self, request, pk=None):
+        report = self.get_object()
+        comment_text = request.data.get('comment')
+        if comment_text is None:
+            return HttpResponseBadRequest()
+        comment = ReportComment(
+            text=comment_text,
+            owner=Profile.objects.get_or_create(user=request.user)[0],
+            report=report
+        )
+        comment.save()
         return self.retrieve(request)

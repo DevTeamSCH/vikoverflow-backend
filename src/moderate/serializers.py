@@ -3,16 +3,23 @@ from rest_framework.fields import ChoiceField
 from rest_framework.serializers import ModelSerializer
 
 from account.models import Profile
-from moderate.models import Report
+from moderate.models import Report, ReportComment
+
+
+class ModeratorCommentSerializer(ModelSerializer):
+    class Meta:
+        model = ReportComment
+        fields = ('pk', 'created_at', 'text', 'owner')
 
 
 class ReportSerializer(ModelSerializer):
     object_type = ChoiceField(['question', 'answer', 'comment', 'profile', 'tag', 'course'])
+    comments = ModeratorCommentSerializer(many=True, required=False)
 
     class Meta:
         model = Report
-        fields = ('pk', 'created_at', 'updated_at', 'closed_at', 'text', 'reporter', 'status', 'object_id', 'object_type')
-        read_only_fields = ('pk', 'created_at', 'updated_at', 'closed_at', 'reporter', 'status')
+        fields = ('pk', 'created_at', 'updated_at', 'closed_at', 'text', 'reporter', 'status', 'object_id', 'object_type', 'comments')
+        read_only_fields = ('pk', 'created_at', 'updated_at', 'closed_at', 'reporter', 'status', 'comments')
 
     def create(self, validated_data):
         report = Report(
