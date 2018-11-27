@@ -11,15 +11,8 @@ class ReportSerializer(ModelSerializer):
 
     class Meta:
         model = Report
-        fields = ('created_at', 'updated_at', 'closed_at', 'text', 'reporter', 'status', 'object_id', 'object_type')
-
-
-class ReportCreateSerializer(ModelSerializer):
-    object_type = ChoiceField(['question', 'answer', 'comment', 'profile', 'tag', 'course'])
-
-    class Meta:
-        model = Report
-        fields = ('text', 'object_id', 'object_type')
+        fields = ('pk', 'created_at', 'updated_at', 'closed_at', 'text', 'reporter', 'status', 'object_id', 'object_type')
+        read_only_fields = ('pk', 'created_at', 'updated_at', 'closed_at', 'reporter', 'status')
 
     def create(self, validated_data):
         report = Report(

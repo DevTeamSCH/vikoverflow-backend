@@ -1,15 +1,13 @@
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin
+from rest_framework.viewsets import GenericViewSet
 
 from moderate.models import Report
-from moderate.serializers import ReportSerializer, ReportCreateSerializer
+from moderate.permissions import ReportListPermission
+from moderate.serializers import ReportSerializer
 
 
-class ReportViewSet(ModelViewSet):
+class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = Report.objects.all()
-
-    def get_serializer_class(self):
-        if self.request.method == "POST":
-            return ReportCreateSerializer
-        else:
-            return ReportSerializer
+    serializer_class = ReportSerializer
+    permission_classes = (ReportListPermission, )
 
