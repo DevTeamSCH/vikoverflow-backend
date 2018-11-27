@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django.utils.translation import gettext as _
 from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
@@ -39,3 +41,11 @@ class Report(models.Model):
 
     def object_type(self):
         return self.content_type.model
+
+    def close(self):
+        self.status = "CLOSED"
+        self.closed_at = datetime.now()
+
+    def reopen(self):
+        self.status = "OPENED"
+        self.closed_at = None
