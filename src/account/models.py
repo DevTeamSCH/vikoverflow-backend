@@ -14,4 +14,4 @@ class Profile(models.Model):
         return self.user.get_full_name()
 
     def __str__(self):
-        self.full_name
+        return self.full_name

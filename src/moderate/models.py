@@ -24,10 +24,10 @@ class Report(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
-    closed_at = models.DateTimeField(blank=True)
+    closed_at = models.DateTimeField(null=True)
     text = models.TextField()
     reporter = models.ForeignKey(Profile, related_name='reports', on_delete=models.CASCADE)
-    status = models.CharField(choices=STATUS_CHOICES, max_length=255)
+    status = models.CharField(choices=STATUS_CHOICES, max_length=255, default='OPENED')
 
     # Generic relations for reports
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
@@ -36,3 +36,6 @@ class Report(models.Model):
 
     def __str__(self):
         return self.text
+
+    def object_type(self):
+        return self.content_type.model
