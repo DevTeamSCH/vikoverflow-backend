@@ -5,7 +5,6 @@ from common.mixins import RelativeURLFieldMixin
 from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
 
 
-
 class TagViewSet(
     RelativeURLFieldMixin,
     UpdateModelMixin,
