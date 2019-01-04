@@ -4,13 +4,10 @@ from rest_framework import permissions
 
 
 from common.mixins import RelativeURLFieldMixin
-from . permissions import IsOwnProfileOrStaff
-from . permissions import ListStaffOnly
+from . permissions import CustomPerm
 from . import models
 from . import serializers
 
-
-# TODO tests and use only one endpoint/view
 
 class ProfileViewSet(
     RelativeURLFieldMixin,
@@ -20,7 +17,12 @@ class ProfileViewSet(
 ):
     queryset = models.Profile.objects.all()
     serializer_class = serializers.ProfileSerializer
-    permission_classes = [permissions.IsAuthenticated, ListStaffOnly, IsOwnProfileOrStaff]
+    permission_classes = [permissions.IsAuthenticated, CustomPerm]
+
+    def get_serializer_class(self):
+        if self.request.user.is_staff:
+            return serializers.ProfileSerializer
+        return serializers.ProfileSerializerBasicAccount
 
     def get_queryset(self):
 
@@ -41,3 +43,13 @@ class ProfileViewSet(
             queryset = queryset.filter(user__is_active=is_active)
 
         return queryset
+
+
+class AvatarViewSet(
+    RelativeURLFieldMixin,
+    generics.RetrieveUpdateAPIView,
+    viewsets.GenericViewSet
+):
+    queryset = models.Profile.objects.all()
+    serializer_class = serializers.AvatarSerializer
+    permission_classes = [permissions.IsAuthenticated, CustomPerm]

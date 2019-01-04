@@ -1,26 +1,14 @@
 from rest_framework import permissions
 
 
-class IsOwnProfileOrStaff(permissions.BasePermission):
-    """
-        Custom permission to only allow access to the owner or staff user
-    """
-
-    def has_object_permission(self, request, view, obj):
-
-        if request.user:
-            if request.user.is_staff:
-                return True
-            else:
-                return obj.user == request.user
-        else:
-            return False
-
-
-class ListStaffOnly(permissions.BasePermission):
-    """
-        Custom permission to only allow access to lists for staffs
-    """
+class CustomPerm(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        return view.action != 'list' or (request.user and request.user.is_staff)
+        if request.method == 'PUT':
+            return request.user
+        return request.method in permissions.SAFE_METHODS
+
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'PUT':
+            return request.user.is_superuser or obj.user == request.user
+        return request.method in permissions.SAFE_METHODS
