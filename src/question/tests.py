@@ -1,23 +1,21 @@
 from django.contrib.auth.models import User
-from django.urls import reverse
-from faker import Faker
 from rest_framework import status
 from rest_framework.test import APITestCase
 from taggit.models import Tag
 
-fake = Faker()
 starting_amount = 5
 added_amount = 5
 
 
 class TagTests(APITestCase):
     def setUp(self):
-        User.objects.create(username='admin', is_superuser=True, is_staff=True) \
-            .set_password('adminpass')
-        User.objects.create(username='mod', is_staff=True) \
-            .set_password('modpass')
-        User.objects.create(username='csicska') \
-            .set_password('csicskapass')
+        User.objects.bulk_create(
+            [
+                User(username='admin', is_superuser=True, is_staff=True, password='adminpass'),
+                User(username='mod', is_staff=True, password='modpass'),
+                User(username='csicska', is_staff=False, password='csicskapass')
+            ]
+        )
 
         for i in range(1, starting_amount + 1):
             Tag.objects.create(name="Tag"+str(i), slug="tag"+str(i))
@@ -46,7 +44,7 @@ class TagTests(APITestCase):
         for i in range(1, starting_amount + 1):
             url = "http://127.0.0.1:8000/api/v1/tags/"+str(i)+"/"
             response = self.client.get(url)
-            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+            self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.client.logout()
 
     # ----------------------------------------------------------------------------------------
@@ -82,7 +80,7 @@ class TagTests(APITestCase):
             self.assertEqual(Tag.objects.count(), object_count + 1)
         self.client.logout()
 
-    def test_put_mod(self):
+    def test_put_csicska(self):
         self.client.force_login(User.objects.get(username="csicska"))
         for i in range(starting_amount + 1, starting_amount + 1 + added_amount):
             url = "http://127.0.0.1:8000/api/v1/tags/" + str(i) + "/"
@@ -156,7 +154,7 @@ class TagTests(APITestCase):
         self.assertEqual(Tag.objects.count(), object_count - 1)
         self.client.logout()
 
-    def test_delete_user(self):
+    def test_delete_csicska(self):
         self.client.force_login(User.objects.get(username='csicska'))
         del_idx = 1
         url = "http://127.0.0.1:8000/api/v1/tags/" + str(del_idx) + "/"
