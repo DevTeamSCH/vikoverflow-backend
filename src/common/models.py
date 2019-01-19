@@ -14,9 +14,11 @@ class Votes(models.Model):
         )
 
         def comment_item_name():
-            return self.answer_comment_item\
-            or self.question_comment_item\
-            or self.comment_comment_item
+            return (
+                self.answer_comment_item
+                or self.question_comment_item
+                or self.comment_comment_item
+            )
 
         def __str__(self):
             return ''.join([str(self.comment_item_name()), '\'s votes'])

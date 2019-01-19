@@ -2,6 +2,7 @@ from django.db import models
 from taggit.managers import TaggableManager
 from taggit.models import TagBase
 from django.core.exceptions import ValidationError
+
 from common.models import AbstractComment
 from account.models import Profile
 
