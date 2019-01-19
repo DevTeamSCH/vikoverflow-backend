@@ -5,11 +5,6 @@ from . import models
 from . import serializers
 
 
-class AnswerViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = models.Answer.objects.all()
-    serializer_class = serializers.AnswerSerializer
-
-
 class QuestionViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet
