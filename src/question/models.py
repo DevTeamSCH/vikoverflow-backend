@@ -43,20 +43,6 @@ class Comment(AbstractComment):
     def parent(self):
         return self.parent_answer or self.parent_question
 
-    def clean(self):
-        if self.parent_answer is None and self.parent_question is None:
-            raise ValidationError(
-                'Comment must have a parent answer or question!'
-            )
-        if self.parent_answer is not None and self.parent_question is not None:
-            raise ValidationError(
-                'Comment must only have one parent!'
-            )
-
-    def save(self, *args, **kwargs):
-        self.clean()
-        super().save(*args, **kwargs)
-
 
 # TODO: It may need a middle class: https://django-taggit.readthedocs.io/en/latest/custom_tagging.html#custom-tag
 class Course(TagBase):
