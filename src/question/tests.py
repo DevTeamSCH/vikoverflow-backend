@@ -1,19 +1,29 @@
-# from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth.models import User
 
 from account.models import Profile
 from common.models import Votes
-from .models import Question
+from .models import Question, Answer, Comment
 
-class VotingTestCase(APITestCase):
+class OneVoterQuestion(APITestCase):
+    model = Question
+    url_name = 'questions'
 
-    question = None
+    abstract_comment = None
     upvoters = None
     downvoters = None
     url = None
     voter = None
+
+
+    def prepare(self):
+        self.abstract_comment = self.model.objects.all()[0]
+        abstract_comment_url = ''.join(['http://localhost:8000/api/v1/', self.url_name, '/'])
+        self.upvoters = self.abstract_comment.votes.upvoters
+        self.downvoters = self.abstract_comment.votes.downvoters
+        self.url = ''.join([abstract_comment_url, str(self.abstract_comment.id), '/'])
+        self.voter = User.objects.get(username='voter')
 
 
     def setUp(self):
@@ -28,7 +38,7 @@ class VotingTestCase(APITestCase):
                 username='voter',
             )
         )
-        # Question
+        # Content
         question = Question.objects.create(
             title='What is love?',
             text='Baby don\'t hurt me!',
@@ -36,19 +46,21 @@ class VotingTestCase(APITestCase):
             show_username=True,
             owner=submitter
         )
-
-
-    def prepare(self):
-        self.question = Question.objects.all()[0]
-        pk = self.question.id
-        questions_url = 'http://localhost:8000/api/v1/questions/'
-        self.upvoters = self.question.votes.upvoters
-        self.downvoters = self.question.votes.downvoters
-        self.url = ''.join([questions_url, str(pk), '/'])
-        self.voter = User.objects.get(username='voter')
-
-
-class OnePersonVotingTestCase(VotingTestCase):
+        answer = Answer.objects.create(
+            text='I like apples.',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=submitter,
+            parent=question,
+            is_accepted=False
+        )
+        comment = Comment.objects.create(
+            text='Apples suck.',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=submitter,
+            parent_answer=answer
+        )
 
 
     def test_zero_votes(self):
@@ -127,7 +139,17 @@ class OnePersonVotingTestCase(VotingTestCase):
         self.assertEqual(self.downvoters.filter(user=self.voter).count(), 0)
 
 
-class TwoPeopleVotingTest(VotingTestCase):
+class OneVoterAnswer(OneVoterQuestion):
+    model = Answer
+    url_name = 'answers'
+
+
+class OneVoterComment(OneVoterQuestion):
+    model = Comment
+    url_name = 'comments'
+
+
+class TwoVotersQuestion(OneVoterQuestion):
 
     voter2 = None
 
@@ -204,3 +226,13 @@ class TwoPeopleVotingTest(VotingTestCase):
         self.assertEqual(self.downvoters.all().count(), 2)
         self.assertEqual(self.downvoters.filter(user=self.voter).count(), 1)
         self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 1)
+
+
+class TwoVotersAnswer(TwoVotersQuestion):
+    model = Answer
+    url_name = 'answers'
+
+
+class TwoVotersComment(TwoVotersQuestion):
+    model = Comment
+    url_name = 'comments'
