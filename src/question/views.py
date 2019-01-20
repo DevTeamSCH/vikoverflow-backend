@@ -21,21 +21,22 @@ def handle_vote(abstract_comment, request):
     except KeyError:
         return bad_request
     if vote == 'up':
-        if upvoters.filter(user=user).count() > 0:
-            upvoters.remove(user_profile)
-        elif downvoters.filter(user=user).count() > 0:
+        if downvoters.filter(user=user).count() > 0:
             downvoters.remove(user_profile)
             upvoters.add(user_profile)
         else:
             upvoters.add(user_profile)
     elif vote == 'down':
-        if downvoters.filter(user=user).count() > 0:
-            downvoters.remove(user_profile)
-        elif upvoters.filter(user=user).count() > 0:
+        if upvoters.filter(user=user).count() > 0:
             upvoters.remove(user_profile)
             downvoters.add(user_profile)
         else:
             downvoters.add(user_profile)
+    elif vote == 'none':
+        if upvoters.filter(user=user).count() > 0:
+            upvoters.remove(user_profile)
+        elif downvoters.filter(user=user).count() > 0:
+            downvoters.remove(user_profile)
     else:
         return bad_request
     return HttpResponse(status=status.HTTP_200_OK)

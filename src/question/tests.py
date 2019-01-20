@@ -6,9 +6,9 @@ from account.models import Profile
 from common.models import Votes
 from .models import Question, Answer, Comment
 
-class OneVoterQuestion(APITestCase):
-    model = Question
-    url_name = 'questions'
+class VotingTestCase(APITestCase):
+    model = None
+    url_name = None
 
     abstract_comment = None
     upvoters = None
@@ -63,58 +63,20 @@ class OneVoterQuestion(APITestCase):
         )
 
 
+class OneVoterQuestion(VotingTestCase):
+    model = Question
+    url_name = 'questions'
+
+
     def test_zero_votes(self):
         self.prepare()
         self.assertEqual(self.upvoters.all().count(), 0)
         self.assertEqual(self.downvoters.all().count(), 0)
 
 
-    def test_up_up(self):
+    def test_up(self):
         self.prepare()
         self.client.force_login(self.voter)
-        response = self.client.put(self.url, {'user_vote': 'up'})
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.upvoters.all().count(), 1)
-        self.assertEqual(self.downvoters.all().count(), 0)
-        self.assertEqual(self.upvoters.filter(user=self.voter).count(), 1)
-        self.assertEqual(self.downvoters.filter(user=self.voter).count(), 0)
-
-        response = self.client.put(self.url, {'user_vote': 'up'})
-        self.client.logout()
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.upvoters.all().count(), 0)
-        self.assertEqual(self.downvoters.all().count(), 0)
-        self.assertEqual(self.upvoters.filter(user=self.voter).count(), 0)
-        self.assertEqual(self.downvoters.filter(user=self.voter).count(), 0)
-
-
-    def test_up_down(self):
-        self.prepare()
-        self.client.force_login(self.voter)
-        response = self.client.put(self.url, {'user_vote': 'up'})
-        response = self.client.put(self.url, {'user_vote': 'down'})
-        self.client.logout()
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.upvoters.all().count(), 0)
-        self.assertEqual(self.downvoters.all().count(), 1)
-        self.assertEqual(self.upvoters.filter(user=self.voter).count(), 0)
-        self.assertEqual(self.downvoters.filter(user=self.voter).count(), 1)
-
-
-    def test_down_up(self):
-        self.prepare()
-        self.client.force_login(self.voter)
-        response = self.client.put(self.url, {'user_vote': 'down'})
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.upvoters.all().count(), 0)
-        self.assertEqual(self.downvoters.all().count(), 1)
-        self.assertEqual(self.upvoters.filter(user=self.voter).count(), 0)
-        self.assertEqual(self.downvoters.filter(user=self.voter).count(), 1)
-
         response = self.client.put(self.url, {'user_vote': 'up'})
         self.client.logout()
 
@@ -125,12 +87,23 @@ class OneVoterQuestion(APITestCase):
         self.assertEqual(self.downvoters.filter(user=self.voter).count(), 0)
 
 
-    def test_down_down(self):
+    def test_down(self):
         self.prepare()
         self.client.force_login(self.voter)
         response = self.client.put(self.url, {'user_vote': 'down'})
-        response = self.client.put(self.url, {'user_vote': 'down'})
         self.client.logout()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.upvoters.all().count(), 0)
+        self.assertEqual(self.downvoters.all().count(), 1)
+        self.assertEqual(self.upvoters.filter(user=self.voter).count(), 0)
+        self.assertEqual(self.downvoters.filter(user=self.voter).count(), 1)
+
+
+    def test_none(self):
+        self.prepare()
+        self.client.force_login(self.voter)
+        response = self.client.put(self.url, {'user_vote': 'none'})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.upvoters.all().count(), 0)
@@ -149,7 +122,9 @@ class OneVoterComment(OneVoterQuestion):
     url_name = 'comments'
 
 
-class TwoVotersQuestion(OneVoterQuestion):
+class TwoVotersQuestion(VotingTestCase):
+    model = Question
+    url_name = 'questions'
 
     voter2 = None
 
@@ -181,6 +156,8 @@ class TwoVotersQuestion(OneVoterQuestion):
         self.assertEqual(self.downvoters.all().count(), 0)
         self.assertEqual(self.upvoters.filter(user=self.voter).count(), 1)
         self.assertEqual(self.upvoters.filter(user=self.voter2).count(), 1)
+        self.assertEqual(self.downvoters.filter(user=self.voter).count(), 0)
+        self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 0)
 
 
     def test_up_down(self):
@@ -196,21 +173,25 @@ class TwoVotersQuestion(OneVoterQuestion):
         self.assertEqual(self.downvoters.all().count(), 1)
         self.assertEqual(self.upvoters.filter(user=self.voter).count(), 1)
         self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 1)
+        self.assertEqual(self.upvoters.filter(user=self.voter2).count(), 0)
+        self.assertEqual(self.downvoters.filter(user=self.voter).count(), 0)
 
 
-    def test_down_up(self):
+    def test_up_none(self):
         self.prepare()
         self.client.force_login(self.voter)
-        self.client.put(self.url, {'user_vote': 'down'})
+        self.client.put(self.url, {'user_vote': 'up'})
         self.client.logout()
         self.client.force_login(self.voter2)
-        self.client.put(self.url, {'user_vote': 'up'})
+        self.client.put(self.url, {'user_vote': 'none'})
         self.client.logout()
 
         self.assertEqual(self.upvoters.all().count(), 1)
-        self.assertEqual(self.downvoters.all().count(), 1)
-        self.assertEqual(self.downvoters.filter(user=self.voter).count(), 1)
-        self.assertEqual(self.upvoters.filter(user=self.voter2).count(), 1)
+        self.assertEqual(self.downvoters.all().count(), 0)
+        self.assertEqual(self.upvoters.filter(user=self.voter).count(), 1)
+        self.assertEqual(self.downvoters.filter(user=self.voter).count(), 0)
+        self.assertEqual(self.upvoters.filter(user=self.voter2).count(), 0)
+        self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 0)
 
 
     def test_down_down(self):
@@ -224,8 +205,44 @@ class TwoVotersQuestion(OneVoterQuestion):
 
         self.assertEqual(self.upvoters.all().count(), 0)
         self.assertEqual(self.downvoters.all().count(), 2)
+        self.assertEqual(self.upvoters.filter(user=self.voter).count(), 0)
         self.assertEqual(self.downvoters.filter(user=self.voter).count(), 1)
+        self.assertEqual(self.upvoters.filter(user=self.voter2).count(), 0)
         self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 1)
+
+
+    def test_down_none(self):
+        self.prepare()
+        self.client.force_login(self.voter)
+        self.client.put(self.url, {'user_vote': 'down'})
+        self.client.logout()
+        self.client.force_login(self.voter2)
+        self.client.put(self.url, {'user_vote': 'none'})
+        self.client.logout()
+
+        self.assertEqual(self.upvoters.all().count(), 0)
+        self.assertEqual(self.downvoters.all().count(), 1)
+        self.assertEqual(self.upvoters.filter(user=self.voter).count(), 0)
+        self.assertEqual(self.downvoters.filter(user=self.voter).count(), 1)
+        self.assertEqual(self.upvoters.filter(user=self.voter2).count(), 0)
+        self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 0)
+
+
+    def test_none_none(self):
+        self.prepare()
+        self.client.force_login(self.voter)
+        self.client.put(self.url, {'user_vote': 'none'})
+        self.client.logout()
+        self.client.force_login(self.voter2)
+        self.client.put(self.url, {'user_vote': 'none'})
+        self.client.logout()
+
+        self.assertEqual(self.upvoters.all().count(), 0)
+        self.assertEqual(self.downvoters.all().count(), 0)
+        self.assertEqual(self.upvoters.filter(user=self.voter).count(), 0)
+        self.assertEqual(self.downvoters.filter(user=self.voter).count(), 0)
+        self.assertEqual(self.upvoters.filter(user=self.voter2).count(), 0)
+        self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 0)
 
 
 class TwoVotersAnswer(TwoVotersQuestion):
