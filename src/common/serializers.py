@@ -22,11 +22,11 @@ class AbstractCommentSerializer(serializers.ModelSerializer):
         try:
             current = self.context['request'].user.username
             if obj.votes.upvoters.filter(
-                    user__username=current
+                user__username=current
             ).count() > 0:
                 return 'up'
             elif obj.votes.downvoters.filter(
-                    user__username=current
+                user__username=current
             ).count() > 0:
                 return 'down'
             else:

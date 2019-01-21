@@ -2,6 +2,7 @@ from django.db import models
 from taggit.managers import TaggableManager
 from taggit.models import TagBase
 from django.core.exceptions import ValidationError
+
 from common.models import AbstractComment
 from account.models import Profile
 
@@ -41,20 +42,6 @@ class Comment(AbstractComment):
     @property
     def parent(self):
         return self.parent_answer or self.parent_question
-
-    def clean(self):
-        if self.parent_answer is None and self.parent_question is None:
-            raise ValidationError(
-                'Comment must have a parent answer or question!'
-            )
-        if self.parent_answer is not None and self.parent_question is not None:
-            raise ValidationError(
-                'Comment must only have one parent!'
-            )
-
-    def save(self, *args, **kwargs):
-        self.clean()
-        super().save(*args, **kwargs)
 
 
 # TODO: It may need a middle class: https://django-taggit.readthedocs.io/en/latest/custom_tagging.html#custom-tag
