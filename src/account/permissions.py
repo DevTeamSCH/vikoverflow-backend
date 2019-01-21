@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class CustomPerm(permissions.BasePermission):
+class IsSafeMethodOrIsOwnOrIsAdmin(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if request.method == 'PUT':
