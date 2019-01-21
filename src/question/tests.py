@@ -22,7 +22,7 @@ class VotingTestCase(APITestCase):
         abstract_comment_url = ''.join(['http://localhost:8000/api/v1/', self.url_name, '/'])
         self.upvoters = self.abstract_comment.votes.upvoters
         self.downvoters = self.abstract_comment.votes.downvoters
-        self.url = ''.join([abstract_comment_url, str(self.abstract_comment.id), '/'])
+        self.url = ''.join([abstract_comment_url, str(self.abstract_comment.id), '/vote/'])
         self.voter = User.objects.get(username='voter')
 
 
@@ -66,6 +66,24 @@ class VotingTestCase(APITestCase):
 class OneVoterQuestion(VotingTestCase):
     model = Question
     url_name = 'questions'
+
+
+    def test_not_exist(self):
+        self.prepare()
+        abstract_comment_url = ''.join(['http://localhost:8000/api/v1/', self.url_name, '/'])
+        self.url = ''.join([abstract_comment_url, str(100), '/vote/'])
+        self.client.force_login(self.voter)
+        response = self.client.put(self.url, {'user_vote': 'up'})
+        self.client.logout()
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+    def test_permissions(self):
+        self.prepare()
+        response = self.client.put(self.url, {'user_vote': 'up'})
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
     def test_zero_votes(self):
