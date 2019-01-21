@@ -5,14 +5,14 @@ from rest_framework.viewsets import GenericViewSet
 
 from account.models import Profile
 from moderate.models import Report, ReportComment
-from moderate.permissions import ReportListPermission
+from moderate.permissions import ReportViewSetPermission
 from moderate.serializers import ReportSerializer
 
 
 class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
-    permission_classes = (ReportListPermission, )
+    permission_classes = (ReportViewSetPermission,)
 
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
