@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'social_django',
     'authsch',
     'taggit',
+    'taggit_serializer',
     'account',
     'common',
     'moderate',
