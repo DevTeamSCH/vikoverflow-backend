@@ -30,6 +30,6 @@ class AbstractCommentSerializer(serializers.ModelSerializer):
             ).count() > 0:
                 return 'down'
             else:
-                return False
+                return 'none'
         except:
-            return False
+            return 'none'
