@@ -40,35 +40,34 @@ def handle_vote(abstract_comment, request):
     return HttpResponse(status=status.HTTP_200_OK)
 
 
-class AnswerViewSet(viewsets.GenericViewSet):
-    queryset = models.Answer.objects.all()
+class Votable(viewsets.GenericViewSet):
+    model = None
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.queryset = self.model.objects.all()
+
+
+    @action(detail=True, methods=['put'], permission_classes=[permissions.IsAuthenticated])
+    def vote(self, request, pk):
+        abstract_comment = get_object_or_404(self.model, pk=pk)
+        return handle_vote(abstract_comment, request)
+
+
+class AnswerViewSet(Votable):
+    model = models.Answer
     serializer_class = serializers.AnswerSerializer
 
-    @action(detail=True, methods=['put'], permission_classes=[permissions.IsAuthenticated])
-    def vote(self, request, pk):
-        answer = get_object_or_404(models.Answer, pk=pk)
-        return handle_vote(answer, request)
 
-
-class CommentViewSet(viewsets.GenericViewSet):
-    queryset = models.Comment.objects.all()
+class CommentViewSet(Votable):
+    model = models.Comment
     serializer_class = serializers.CommentSerializer
-    permission_classes = (permissions.IsAuthenticated, )
-
-    @action(detail=True, methods=['put'], permission_classes=[permissions.IsAuthenticated])
-    def vote(self, request, pk):
-        answer = get_object_or_404(models.Comment, pk=pk)
-        return handle_vote(answer, request)
 
 
 class QuestionViewSet(
     mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet
+    Votable
 ):
-    queryset = models.Question.objects.all()
+    model = models.Question
     serializer_class = serializers.QuestionSerializer
-
-    @action(detail=True, methods=['put'], permission_classes=[permissions.IsAuthenticated])
-    def vote(self, request, pk):
-        question = get_object_or_404(models.Question, pk=pk)
-        return handle_vote(question, request)
