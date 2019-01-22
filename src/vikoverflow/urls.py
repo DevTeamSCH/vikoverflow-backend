@@ -18,6 +18,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/', include('question.urls')),
     path('api/v1/', include('social_django.urls', namespace='social')),
     path('api/v1/', include('question.urls'))
 ]

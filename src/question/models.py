@@ -1,6 +1,7 @@
 from django.db import models
 from taggit.managers import TaggableManager
 from taggit.models import TagBase
+from django.core.exceptions import ValidationError
 from common.models import AbstractComment, Votes
 from account.models import Profile
 
@@ -8,16 +9,38 @@ from account.models import Profile
 class Question(AbstractComment):
     title = models.CharField(max_length=255)
     tags = TaggableManager()
-    parent = models.OneToOneField(Votes, related_name='question', on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.title
 
 
 class Answer(AbstractComment):
     is_accepted = models.BooleanField()
-    parent = models.OneToOneField(Votes, related_name='answer', on_delete=models.CASCADE, null=True)
+    parent = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+        related_name='answers',
+        null=False
+    )
 
 
 class Comment(AbstractComment):
-    parent = models.OneToOneField(Votes, related_name='comment', on_delete=models.CASCADE, null=True)
+    parent_answer = models.ForeignKey(
+        'question.Answer',
+        on_delete=models.CASCADE,
+        related_name='comments',
+        null=True
+    )
+    parent_question = models.ForeignKey(
+        'question.Question',
+        on_delete=models.CASCADE,
+        related_name='comments',
+        null=True
+    )
+
+    @property
+    def parent(self):
+        return self.parent_answer or self.parent_question
 
 
 # TODO: It may need a middle class: https://django-taggit.readthedocs.io/en/latest/custom_tagging.html#custom-tag
