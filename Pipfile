@@ -10,6 +10,8 @@ pyyaml = "*"
 django-social-authsch = "*"
 pillow = "*"
 django-taggit = "*"
+django-taggit-serializer = "*"
+
 
 [dev-packages]
 "flake8" = "*"
@@ -18,6 +20,7 @@ pylint = "*"
 django-extensions = "*"
 faker = "*"
 psycopg2-binary = "*"
+faker = "*"
 graphviz = {version = "*", sys_platform = "!= 'win32'"}
 pygraphviz = {version = "*", sys_platform = "!= 'win32'"}
 
