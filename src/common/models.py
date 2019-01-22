@@ -13,7 +13,7 @@ class Votes(models.Model):
             related_name="downvotes",
         )
 
-        def comment_item_name():
+        def comment_item_name(self):
             return (
                 self.answer_comment_item
                 or self.question_comment_item
@@ -29,6 +29,7 @@ class AbstractComment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     show_username = models.BooleanField()
     text = models.TextField()
+    is_visible = models.BooleanField(default=True)
     votes = models.OneToOneField(
         Votes,
         related_name='%(class)s_comment_item',
@@ -45,3 +46,6 @@ class AbstractComment(models.Model):
 
     def __str__(self):
         return self.text
+
+    def report_approved(self):
+        self.is_visible = False

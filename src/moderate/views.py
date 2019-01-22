@@ -1,5 +1,7 @@
 from django.http import HttpResponseForbidden, HttpResponseBadRequest
+from django.utils.translation import gettext as _
 from rest_framework.decorators import action
+from rest_framework.exceptions import ParseError
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin
 from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import GenericViewSet
@@ -18,10 +20,24 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
     @action(detail=True, methods=['post'], permission_classes=(IsAdminUser, ))
     def approve(self, request, pk=None):
         report = self.get_object()
-        # TODO: Approve logic
-        report.close()
-        report.save()
 
+        if report.is_closed():
+            raise ParseError()
+
+        report.approved_by.add(request.user)
+
+        ReportComment(
+            text=_("Report approved"),
+            owner=Profile.objects.get_or_create(user=request.user)[0],
+            report=report
+        ).save()
+
+        if report.approved_by.count >= 2:
+            report.close()
+            report.content_object.report_approved(report)
+            report.content_object.save()
+
+        report.save()
         return self.retrieve(request)
 
     @action(detail=True, methods=['post'], permission_classes=(IsAdminUser, ))
@@ -29,6 +45,11 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
         report = self.get_object()
         report.close()
         report.save()
+        ReportComment(
+            text=_("Report rejected"),
+            owner=Profile.objects.get_or_create(user=request.user)[0],
+            report=report
+        ).save()
         return self.retrieve(request)
 
     @action(detail=True, methods=['post'], permission_classes=(IsSuperuser, ))
@@ -39,6 +60,11 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
         report = self.get_object()
         report.reopen()
         report.save()
+        ReportComment(
+            text=_("Report reopened"),
+            owner=Profile.objects.get_or_create(user=request.user)[0],
+            report=report
+        ).save()
         return self.retrieve(request)
 
     @action(detail=True, methods=['post'], permission_classes=(IsAdminUser, ))
