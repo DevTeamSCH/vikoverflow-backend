@@ -4,7 +4,7 @@ from rest_framework import permissions
 
 
 from common.mixins import RelativeURLFieldMixin
-from . permissions import CustomPerm
+from . permissions import IsSafeMethodOrIsOwnOrIsAdmin
 from . import models
 from . import serializers
 
@@ -17,7 +17,7 @@ class ProfileViewSet(
 ):
     queryset = models.Profile.objects.all()
     serializer_class = serializers.ProfileSerializer
-    permission_classes = [permissions.IsAuthenticated, CustomPerm]
+    permission_classes = [permissions.IsAuthenticated, IsSafeMethodOrIsOwnOrIsAdmin]
 
     def get_serializer_class(self):
         if self.request.user.is_staff:
@@ -52,4 +52,4 @@ class AvatarViewSet(
 ):
     queryset = models.Profile.objects.all()
     serializer_class = serializers.AvatarSerializer
-    permission_classes = [permissions.IsAuthenticated, CustomPerm]
+    permission_classes = [permissions.IsAuthenticated, IsSafeMethodOrIsOwnOrIsAdmin]
