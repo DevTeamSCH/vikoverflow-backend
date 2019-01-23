@@ -1,0 +1,13 @@
+sudo: required
+dist: xenial
+
+services:
+- docker
+
+install:
+- docker-compose pull
+- docker-compose build
+- docker volume create --name=vikoverflow-data
+
+script:
+- docker-compose run backend sh -c "cd src; python manage.py test"
