@@ -1,0 +1,12 @@
+sudo: required
+dist: xenial
+
+services:
+- docker
+
+install:
+- docker-compose pull
+- docker-compose build
+
+script:
+- docker-compose run backend sh -c "cd src; python manage.py test"
