@@ -1,5 +1,6 @@
 from parameterized import parameterized
 from django.contrib.auth.models import User
+from parameterized.parameterized import parameterized_class
 from rest_framework import status
 from rest_framework.test import APITestCase
 from taggit.models import Tag
@@ -11,6 +12,14 @@ from moderate.serializers import ReportSerializer
 from question.models import Question, Answer, Comment, Course
 
 
+@parameterized_class(('model_name', 'model_class', 'is_visible_func'), [
+    ('question', Question, lambda _, instance: instance.is_visible),
+    ('answer', Answer, lambda _, instance: instance.is_visible),
+    ('comment', Comment, lambda _, instance: instance.is_visible),
+    ('profile', Profile, lambda _, instance: instance.user.is_active),
+    ('tag', Tag, lambda _, instance: False),
+    ('course', Course, lambda _, instance: False)
+])
 class ReportTestCase(APITestCase):
 
     base_url = "http://localhost:8000/api/v1/reports/"
@@ -52,20 +61,12 @@ class ReportTestCase(APITestCase):
             votes=Votes.objects.create()
         ).save()
 
-    @parameterized.expand([
-        ('question', Question),
-        ('answer', Answer),
-        ('comment', Comment),
-        ('profile', Profile),
-        ('tag', Tag),
-        ('course', Course)
-    ])
-    def test_create_report(self, model_name, model_class):
-        model_object = model_class.objects.first()
+    def test_create_report(self):
+        model_object = self.model_class.objects.first()
         self.client.force_login(self.user.user)
         response = self.client.post(self.base_url, {
             "text": "Test report text",
-            "object_type": model_name,
+            "object_type": self.model_name,
             "object_id": model_object.pk})
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -80,23 +81,15 @@ class ReportTestCase(APITestCase):
             "object_id": object_id})
         return response.data['pk']
 
-    @parameterized.expand([
-        ('question', Question, lambda instance: instance.is_visible),
-        ('answer', Answer, lambda instance: instance.is_visible),
-        ('comment', Comment, lambda instance: instance.is_visible),
-        ('profile', Profile, lambda instance: instance.user.is_active),
-        ('tag', Tag, lambda instance: False),
-        ('course', Course, lambda instance: False)
-    ])
-    def test_approve_report(self, model_name, model_class, is_visible_func):
-        model_instance = model_class.objects.first()
+    def test_approve_report(self):
+        model_instance = self.model_class.objects.first()
         self.client.force_login(self.moderator.user)
-        report_id = self.create_report(model_name, model_instance.pk)
+        report_id = self.create_report(self.model_name, model_instance.pk)
         response = self.client.post(''.join([self.base_url, str(report_id), '/approve/']))
         report = Report.objects.get(pk=report_id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(is_visible_func(model_instance))
+        self.assertTrue(self.is_visible_func(model_instance))
         self.assertFalse(report.is_closed())
         self.assertEqual(report.approved_by.count(), 1)
         self.assertEqual(report.comments.count(), 1)
@@ -105,11 +98,22 @@ class ReportTestCase(APITestCase):
         self.client.force_login(self.admin.user)
         response = self.client.post(''.join([self.base_url, str(report_id), '/approve/']))
         report = Report.objects.get(pk=report_id)
-        model_instance = model_class.objects.first()
+        model_instance = self.model_class.objects.first()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(is_visible_func(model_instance))
+        self.assertFalse(self.is_visible_func(model_instance))
         self.assertTrue(report.is_closed())
         self.assertEqual(report.approved_by.count(), 2)
         self.assertEqual(report.comments.count(), 2)
+
+    def test_reject_report(self):
+        model_instance = self.model_class.objects.first()
+        self.client.force_login(self.moderator.user)
+        report_id = self.create_report(self.model_name, model_instance.pk)
+        response = self.client.post(''.join([self.base_url, str(report_id), '/reject/']))
+        report = Report.objects.get(pk=report_id)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(report.is_closed())
+        self.assertTrue(self.is_visible_func(self.model_class.objects.first()))
 
