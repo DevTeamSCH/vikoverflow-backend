@@ -55,6 +55,8 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
     def reopen(self, request, pk=None):
         report = self.get_object()
         report.reopen()
+        report.content_object.report_reopened(report)
+        report.approved_by.clear()
         report.save()
         ReportComment(
             text=_("Report reopened"),

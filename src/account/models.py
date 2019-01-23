@@ -19,3 +19,7 @@ class Profile(models.Model):
     def report_approved(self, _):
         self.user.is_active = False
         self.user.save()
+
+    def report_reopened(self, _):
+        self.user.is_active = True
+        self.user.save()

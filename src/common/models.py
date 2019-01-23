@@ -50,3 +50,7 @@ class AbstractComment(models.Model):
     def report_approved(self, _):
         self.is_visible = False
         self.save()
+
+    def report_reopened(self, _):
+        self.is_visible = True
+        self.save()

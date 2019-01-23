@@ -16,8 +16,8 @@ from question.models import Question, Answer, Comment, Course
     ('answer', Answer, lambda _, instance: instance.is_visible),
     ('comment', Comment, lambda _, instance: instance.is_visible),
     ('profile', Profile, lambda _, instance: instance.user.is_active),
-    ('tag', Tag, lambda _, instance: False),
-    ('course', Course, lambda _, instance: False)
+    # ('tag', Tag, lambda _, instance: False),
+    # ('course', Course, lambda _, instance: False)
 ])
 class ReportTestCase(APITestCase):
     base_url = "http://localhost:8000/api/v1/reports/"
