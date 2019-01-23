@@ -18,7 +18,6 @@ django-taggit-serializer = "*"
 pycodestyle = "*"
 pylint = "*"
 django-extensions = "*"
-faker = "*"
 psycopg2-binary = "*"
 faker = "*"
 graphviz = {version = "*", sys_platform = "!= 'win32'"}
