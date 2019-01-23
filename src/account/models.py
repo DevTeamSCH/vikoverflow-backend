@@ -16,5 +16,6 @@ class Profile(models.Model):
     def __str__(self):
         return self.full_name
 
-    def report_approved(self):
+    def report_approved(self, _):
         self.user.is_active = False
+        self.user.save()

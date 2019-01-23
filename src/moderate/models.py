@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext as _
 from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
@@ -25,7 +26,7 @@ class Report(models.Model):
     text = models.TextField()
     reporter = models.ForeignKey(Profile, related_name='reports', on_delete=models.CASCADE)
     status = models.CharField(choices=STATUS_CHOICES, max_length=255, default=ReportStatus.OPENED)
-    approved_by = models.ManyToManyField(Profile)
+    approved_by = models.ManyToManyField(User)
 
     # Generic relations for reports
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

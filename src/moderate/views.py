@@ -32,10 +32,9 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
             report=report
         ).save()
 
-        if report.approved_by.count >= 2:
+        if report.approved_by.count() >= 2:
             report.close()
             report.content_object.report_approved(report)
-            report.content_object.save()
 
         report.save()
         return self.retrieve(request)

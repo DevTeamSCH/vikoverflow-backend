@@ -47,5 +47,6 @@ class AbstractComment(models.Model):
     def __str__(self):
         return self.text
 
-    def report_approved(self):
+    def report_approved(self, _):
         self.is_visible = False
+        self.save()
