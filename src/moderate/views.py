@@ -53,9 +53,6 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
 
     @action(detail=True, methods=['post'], permission_classes=(IsSuperuser, ))
     def reopen(self, request, pk=None):
-        if not request.user.is_superuser:
-            return HttpResponseForbidden()
-
         report = self.get_object()
         report.reopen()
         report.save()
