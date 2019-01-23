@@ -86,6 +86,9 @@ class ReportTestCase(APITestCase):
     def reopen_report(self, report_id):
         return self.client.post(''.join([self.base_url, str(report_id), '/reopen/']))
 
+    def comment_report(self, report_id, comment_text=""):
+        return self.client.post(''.join([self.base_url, str(report_id), "/comment/"]), {'comment': comment_text})
+
     # ------------------------------
     # Tests
     # -------------------------------
@@ -171,3 +174,110 @@ class ReportTestCase(APITestCase):
         self.assertEqual(report.comments.count(), 3)
         self.assertEqual(report.approved_by.count(), 0)
 
+    def test_comment(self):
+        self.client.force_login(self.moderator.user)
+        report_id = self.create_report()
+        response = self.comment_report(report_id, "Test comment")
+        report = Report.objects.get(pk=report_id)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(report.comments.count(), 1)
+        self.assertEqual(report.comments.first().text, "Test comment")
+
+    # ------------------------------
+    # Error tests
+    # -------------------------------
+
+    def test_not_logged_in(self):
+        response = self.client.post(self.base_url, {
+            "text": "Test report text",
+            "object_type": self.model_name,
+            "object_id": self.model_class.objects.first().pk
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Report.objects.count(), 0)
+
+        self.client.force_login(self.moderator.user)
+        report_id = self.create_report()
+        self.client.logout()
+
+        response = self.approve_report(report_id)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        response = self.reject_report(report_id)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        response = self.comment_report(report_id)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        response = self.reopen_report(report_id)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_moderator_reopen(self):
+        self.client.force_login(self.moderator.user)
+        report_id = self.create_report()
+        self.reject_report(report_id)
+        response = self.reopen_report(report_id)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Report.objects.first().is_closed())
+
+    def test_invalid_report_id(self):
+        self.client.force_login(self.admin.user)
+        response = self.approve_report(1)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        response = self.reject_report(1)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        response = self.reopen_report(1)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        response = self.comment_report(1)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        response = self.client.get(''.join([self.base_url, "1/"]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_accept_closed(self):
+        self.client.force_login(self.moderator.user)
+        report_id = self.create_report()
+        self.reject_report(report_id)
+        response = self.approve_report(report_id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_reject_closed(self):
+        self.client.force_login(self.moderator.user)
+        report_id = self.create_report()
+        self.reject_report(report_id)
+        response = self.reject_report(report_id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_reopen_open(self):
+        self.client.force_login(self.admin.user)
+        report_id = self.create_report()
+        response = self.reopen_report(report_id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_report_nonexistent(self):
+        self.client.force_login(self.user.user)
+
+        response = self.client.post(self.base_url, {
+            "text": "Test report text",
+            "object_type": self.model_name,
+            "object_id": 1
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_double_approve(self):
+        self.client.force_login(self.moderator.user)
+        report_id = self.create_report()
+        self.approve_report(report_id)
+        response = self.approve_report(report_id)
+        report = Report.objects.get(pk=report_id)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(report.is_closed())
+        self.assertEqual(report.approved_by.count(), 1)

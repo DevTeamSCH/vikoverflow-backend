@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from rest_framework.exceptions import ParseError
 from rest_framework.fields import ChoiceField
 from rest_framework.serializers import ModelSerializer
 
@@ -40,6 +41,9 @@ class ReportSerializer(ModelSerializer):
             report.content_type = ContentType.objects.get(app_label='taggit', model='tag')
         elif validated_data['object_type'] == 'course':
             report.content_type = ContentType.objects.get(app_label="question", model='course')
+
+        if report.content_object is None:
+            raise ParseError()
 
         report.save()
         return report

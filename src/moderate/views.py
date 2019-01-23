@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
 from account.models import Profile
@@ -15,13 +15,13 @@ from moderate.serializers import ReportSerializer
 class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
-    permission_classes = (ReportViewSetPermission,)
+    permission_classes = (IsAuthenticated, ReportViewSetPermission)
 
     @action(detail=True, methods=['post'], permission_classes=(IsAdminUser, ))
     def approve(self, request, pk=None):
         report = self.get_object()
 
-        if report.is_closed():
+        if report.is_closed() or report.approved_by.filter(pk=request.user.pk).count() == 1:
             raise ParseError()
 
         report.approved_by.add(request.user)
@@ -42,6 +42,10 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
     @action(detail=True, methods=['post'], permission_classes=(IsAdminUser, ))
     def reject(self, request, pk=None):
         report = self.get_object()
+
+        if report.is_closed():
+            raise ParseError()
+
         report.close()
         report.save()
         ReportComment(
@@ -54,6 +58,10 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
     @action(detail=True, methods=['post'], permission_classes=(IsSuperuser, ))
     def reopen(self, request, pk=None):
         report = self.get_object()
+
+        if not report.is_closed():
+            raise ParseError()
+
         report.reopen()
         report.content_object.report_reopened(report)
         report.approved_by.clear()
