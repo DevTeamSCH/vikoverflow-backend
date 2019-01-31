@@ -1,15 +1,38 @@
 from django.db import models
+from soft_delete_it.models import SoftDeleteModel
 from taggit.managers import TaggableManager
-from taggit.models import TagBase
+from taggit.models import TagBase, ItemBase
 from django.core.exceptions import ValidationError
 
 from common.models import AbstractComment
 from account.models import Profile
 
 
+class QuestionTag(TagBase, SoftDeleteModel):
+    pass
+
+
+class TaggedQuestion(ItemBase, SoftDeleteModel):
+    tag = models.ForeignKey(QuestionTag, related_name="%(app_label)s_%(class)s_items", on_delete=models.CASCADE)
+    content_object = models.ForeignKey("Question", on_delete=models.CASCADE)
+
+    @classmethod
+    def tags_for(cls, model, instance=None, **extra_filters):
+        kwargs = extra_filters or {}
+        if instance is not None:
+            kwargs.update({
+                '%s__content_object' % cls.tag_relname(): instance
+            })
+            return cls.tag_model().objects.filter(**kwargs)
+        kwargs.update({
+            '%s__content_object__isnull' % cls.tag_relname(): False
+        })
+        return cls.tag_model().objects.filter(**kwargs).distinct()
+
+
 class Question(AbstractComment):
     title = models.CharField(max_length=255)
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedQuestion)
 
     def __str__(self):
         return self.title
