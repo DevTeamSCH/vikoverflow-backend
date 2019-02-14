@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'authsch',
     'taggit',
     'taggit_serializer',
+    'soft_delete_it',
     'account',
     'common',
     'moderate',
