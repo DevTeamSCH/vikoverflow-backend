@@ -16,3 +16,13 @@ class Profile(SoftDeleteModel):
 
     def __str__(self):
         return self.full_name
+
+    def delete(self, using=None):
+        self.user.is_active = False
+        self.user.save()
+        super(Profile, self).delete(using)
+
+    def undelete(self, using=None):
+        self.user.is_active = True
+        self.user.save()
+        super(Profile, self).undelete(using)
