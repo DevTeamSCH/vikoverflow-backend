@@ -1,8 +1,9 @@
 from django.contrib.auth.models import User
 from django.db import models
+from soft_delete_it.models import SoftDeleteModel
 
 
-class Profile(models.Model):
+class Profile(SoftDeleteModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(default='default.jpg')
     about_me = models.TextField(blank=True)
@@ -15,11 +16,3 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.full_name
-
-    def report_approved(self, _):
-        self.user.is_active = False
-        self.user.save()
-
-    def report_reopened(self, _):
-        self.user.is_active = True
-        self.user.save()

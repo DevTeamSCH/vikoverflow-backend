@@ -30,7 +30,6 @@ class AbstractComment(SoftDeleteModel):
     updated_at = models.DateTimeField(auto_now=True)
     show_username = models.BooleanField()
     text = models.TextField()
-    is_visible = models.BooleanField(default=True)
     votes = models.OneToOneField(
         Votes,
         related_name='%(class)s_comment_item',
@@ -47,11 +46,3 @@ class AbstractComment(SoftDeleteModel):
 
     def __str__(self):
         return self.text
-
-    def report_approved(self, _):
-        self.is_visible = False
-        self.save()
-
-    def report_reopened(self, _):
-        self.is_visible = True
-        self.save()

@@ -2,22 +2,20 @@ from django.contrib.auth.models import User
 from parameterized.parameterized import parameterized_class
 from rest_framework import status
 from rest_framework.test import APITestCase
-from taggit.models import Tag
 
 from account.models import Profile
 from common.models import Votes
 from moderate.models import Report
 from moderate.serializers import ReportSerializer
-from question.models import Question, Answer, Comment, Course
+from question.models import Question, Answer, Comment, QuestionTag
 
 
-@parameterized_class(('model_name', 'model_class', 'is_visible_func'), [
-    ('question', Question, lambda _, instance: instance.is_visible),
-    ('answer', Answer, lambda _, instance: instance.is_visible),
-    ('comment', Comment, lambda _, instance: instance.is_visible),
-    ('profile', Profile, lambda _, instance: instance.user.is_active),
-    # ('tag', Tag, lambda _, instance: False),
-    # ('course', Course, lambda _, instance: False)
+@parameterized_class(('model_name', 'model_class'), [
+    ('question', Question),
+    ('answer', Answer),
+    ('comment', Comment),
+    ('profile', Profile),
+    ('tag', QuestionTag),
 ])
 class ReportTestCase(APITestCase):
     base_url = "http://localhost:8000/api/v1/reports/"
@@ -41,6 +39,7 @@ class ReportTestCase(APITestCase):
             votes=Votes.objects.create()
         )
         question.save()
+        question.tags.add("test-tag")
 
         Answer(
             text="Test answer",
@@ -64,10 +63,16 @@ class ReportTestCase(APITestCase):
     # -------------------------------
 
     def assertObjectVisible(self):
-        self.assertTrue(self.is_visible_func(self.model_class.objects.first()))
+        count = 1
+        if self.model_name == 'profile':
+            count = 3
+        self.assertEqual(self.model_class.objects.count(), count)
 
     def assertObjectHidden(self):
-        self.assertFalse(self.is_visible_func(self.model_class.objects.first()))
+        count = 0
+        if self.model_name == 'profile':
+            count = 2
+        self.assertEqual(self.model_class.objects.count(), count)
 
     def create_report(self):
         response = self.client.post(self.base_url, {

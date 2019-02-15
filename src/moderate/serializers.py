@@ -38,9 +38,7 @@ class ReportSerializer(ModelSerializer):
         elif validated_data['object_type'] == 'profile':
             report.content_type = ContentType.objects.get(app_label="account", model="profile")
         elif validated_data['object_type'] == 'tag':
-            report.content_type = ContentType.objects.get(app_label='taggit', model='tag')
-        elif validated_data['object_type'] == 'course':
-            report.content_type = ContentType.objects.get(app_label="question", model='course')
+            report.content_type = ContentType.objects.get(app_label='question', model='questiontag')
 
         if report.content_object is None:
             raise ParseError()

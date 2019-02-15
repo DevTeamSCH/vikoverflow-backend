@@ -34,7 +34,7 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
 
         if report.approved_by.count() >= 2:
             report.close()
-            report.content_object.report_approved(report)
+            report.content_object.delete()
 
         report.save()
         return self.retrieve(request)
@@ -63,7 +63,7 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
             raise ParseError()
 
         report.reopen()
-        report.content_object.report_reopened(report)
+        report.content_object.undelete()
         report.approved_by.clear()
         report.save()
         ReportComment(
