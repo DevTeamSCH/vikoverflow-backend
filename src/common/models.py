@@ -1,4 +1,5 @@
 from django.db import models
+from soft_delete_it.models import SoftDeleteModel
 
 from account.models import Profile
 
@@ -24,7 +25,7 @@ class Votes(models.Model):
             return ''.join([str(self.comment_item_name()), '\'s votes'])
 
 
-class AbstractComment(models.Model):
+class AbstractComment(SoftDeleteModel):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
     show_username = models.BooleanField()
