@@ -154,8 +154,10 @@ class AccountsTests(APITestCase):
     # -------------------------------------------------------------------------
 
     def test_put_single_admin(self):
-        self.client.force_login(User.objects.get(username='admin'))
-        put_idx = User.objects.all()[random.randint(0, User.objects.all().count() - 1)].pk
+        admin_user = User.objects.get(username='admin')
+
+        self.client.force_login(admin_user)
+        put_idx = User.objects.get(username='user').pk
         url = ''.join([reverse('profile-list'), str(put_idx), '/'])
 
         data = {
@@ -177,11 +179,25 @@ class AccountsTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        # test if changes took place in the database
+
+        changed_user = User.objects.get(pk=put_idx)
+        changed_profile = Profile.objects.get(pk=put_idx)
+
+        self.assertEqual(changed_user.email, data['user']['email'])
+        self.assertEqual(changed_user.first_name, data['user']['first_name'])
+        self.assertEqual(changed_user.last_name, data['user']['last_name'])
+        self.assertEqual(changed_user.is_staff, data['user']['is_staff'])
+        self.assertEqual(changed_user.is_active, data['user']['is_active'])
+        self.assertEqual(changed_profile.about_me, data['about_me'])
+        self.assertEqual(changed_profile.is_score_visible, data['is_score_visible'])
+        self.assertEqual(changed_profile.ranked, data['ranked'])
+
         self.client.logout()
 
     def test_put_single_mod(self):
         self.client.force_login(User.objects.get(username='mod'))
-        put_idx = User.objects.all()[random.randint(0, User.objects.all().count() - 1)].pk
+        put_idx = User.objects.get(username='user').pk
         url = ''.join([reverse('profile-list'), str(put_idx), '/'])
 
         data = {
@@ -259,6 +275,20 @@ class AccountsTests(APITestCase):
         response = self.client.put(url, data, format='json')
 
         self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+        # test if changes took place in the database
+
+        changed_user = User.objects.get(pk=put_idx)
+        changed_profile = Profile.objects.get(pk=put_idx)
+
+        self.assertEqual(changed_user.email, data['user']['email'])
+        self.assertEqual(changed_user.first_name, data['user']['first_name'])
+        self.assertEqual(changed_user.last_name, data['user']['last_name'])
+        self.assertEqual(changed_user.is_staff, data['user']['is_staff'])
+        self.assertEqual(changed_user.is_active, data['user']['is_active'])
+        self.assertEqual(changed_profile.about_me, data['about_me'])
+        self.assertEqual(changed_profile.is_score_visible, data['is_score_visible'])
+        self.assertEqual(changed_profile.ranked, data['ranked'])
 
         self.client.logout()
 
