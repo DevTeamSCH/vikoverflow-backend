@@ -22,6 +22,7 @@ psycopg2-binary = "*"
 faker = "*"
 graphviz = {version = "*", sys_platform = "!= 'win32'"}
 pygraphviz = {version = "*", sys_platform = "!= 'win32'"}
+parameterized = "*"
 
 [requires]
 python_version = "3"
