@@ -1,10 +1,12 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 from account.models import Profile
 from common.models import Votes
 from .models import Question, Answer, Comment
+
 
 class VotingTestCase(APITestCase):
     model = None
@@ -271,3 +273,86 @@ class TwoVotersAnswer(TwoVotersQuestion):
 class TwoVotersComment(TwoVotersQuestion):
     model = Comment
     url_name = 'comments'
+
+
+class AnswerQuestionTestCase(APITestCase):
+    url = ''
+
+    def setUp(self):
+        # Users
+        submitter = Profile.objects.create(
+            user=User.objects.create(
+                username='submitter'
+            )
+        )
+        answerer = Profile.objects.create(
+            user=User.objects.create(
+                username='answerer',
+            )
+        )
+        # Content
+        question = Question.objects.create(
+            title='What is love?',
+            text='Baby don\'t hurt me!',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=submitter
+        )
+
+        # Set up URL
+        question_pk = Question.objects.filter(title='What is love?')[0].pk
+        self.url = reverse("questions-answers", args=[question_pk])
+
+    def test_no_login(self):
+        data = {
+            "text": "No more",
+            "show_username": False
+        }
+
+        response = self.client.post(self.url, data=data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_valid(self):
+        answerer_user = User.objects.get(username='answerer')
+        self.client.force_login(answerer_user)
+
+        data = {
+            "text": "No more",
+            "show_username": False
+        }
+
+        response = self.client.post(self.url, data=data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        new_answer = Answer.objects.filter(owner=Profile.objects.get(user=answerer_user))[0]
+        self.assertEqual(new_answer.text, data['text'])
+        self.assertEqual(new_answer.show_username, data['show_username'])
+        self.assertEqual(new_answer.parent, Question.objects.get(title='What is love?'))
+
+        self.client.logout()
+
+    def test_invalid_data(self):
+        answerer_user = User.objects.get(username='answerer')
+        self.client.force_login(answerer_user)
+
+        data_without_text = {
+            "show_username": False
+        }
+
+        response = self.client.post(self.url, data=data_without_text, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        data_without_show_username = {
+            "text": "No more"
+        }
+
+        response = self.client.post(self.url, data=data_without_show_username, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+

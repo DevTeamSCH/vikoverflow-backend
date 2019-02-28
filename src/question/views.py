@@ -10,6 +10,7 @@ from django.http import HttpResponse, JsonResponse
 from . import models
 from . import serializers
 from account.models import Profile
+from common.models import Votes
 
 
 def handle_vote(abstract_comment, request):
@@ -43,11 +44,9 @@ def handle_vote(abstract_comment, request):
 class Votable(viewsets.GenericViewSet):
     model = None
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.queryset = self.model.objects.all()
-
 
     @action(detail=True, methods=['put'], permission_classes=[permissions.IsAuthenticated])
     def vote(self, request, pk):
@@ -71,3 +70,28 @@ class QuestionViewSet(
 ):
     model = models.Question
     serializer_class = serializers.QuestionSerializer
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def answers(self, request, pk):
+        question = get_object_or_404(self.model, pk=pk)
+
+        user = request.user
+        user_profile = Profile.objects.get(user=user)
+        try:
+            text = request.data['text']
+            show_username = request.data['show_username']
+        except KeyError:
+            return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+
+        answer = models.Answer.objects.create(
+            text=text,
+            show_username=show_username,
+            votes=Votes.objects.create(),
+            owner=user_profile,
+            parent=question,
+            is_accepted=False
+        )
+
+        serializer = serializers.AnswerSerializer(answer)
+        return HttpResponse(serializer.data, status=status.HTTP_201_CREATED)
+
