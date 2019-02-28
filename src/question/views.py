@@ -11,6 +11,7 @@ from . import models
 from . import serializers
 from account.models import Profile
 from common.models import Votes
+from . permissions import QuestionOwnerOrSafeMethod
 
 
 def handle_vote(abstract_comment, request):
@@ -66,10 +67,12 @@ class CommentViewSet(Votable):
 
 class QuestionViewSet(
     mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
     Votable
 ):
     model = models.Question
     serializer_class = serializers.QuestionSerializer
+    permission_classes = [QuestionOwnerOrSafeMethod]
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def answers(self, request, pk):

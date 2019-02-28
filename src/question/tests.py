@@ -352,6 +352,63 @@ class AnswerQuestionTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
+class DeleteQuestionTestCase(APITestCase):
+    url = ''
+
+    def setUp(self):
+        # Users
+        submitter = Profile.objects.create(
+            user=User.objects.create(
+                username='submitter'
+            )
+        )
+        other_user = Profile.objects.create(
+            user=User.objects.create(
+                username='other_user',
+            )
+        )
+        # Content
+        question = Question.objects.create(
+            title='What is love?',
+            text='Baby don\'t hurt me!',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=submitter
+        )
+
+        # Set up URL
+        question_pk = Question.objects.filter(title='What is love?')[0].pk
+        self.url = reverse("questions-detail", args=[question_pk])
+
+    def test_no_login(self):
+        response = self.client.delete(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_owner(self):
+        submitter_user = User.objects.get(username='submitter')
+        self.client.force_login(submitter_user)
+
+        response = self.client.delete(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Question.objects.filter(owner__user=submitter_user).count(), 0)
+
+        self.client.logout()
+
+    def test_other_user(self):
+        submitter_user = User.objects.get(username='submitter')
+        other_user = User.objects.get(username='other_user')
+        self.client.force_login(other_user)
+
+        response = self.client.delete(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Question.objects.filter(owner__user=submitter_user).count(), 1)
+
+
+
+
 
 
 
