@@ -6,6 +6,7 @@ from rest_framework import permissions
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, JsonResponse
+from rest_framework.response import Response
 
 from . import models
 from . import serializers
@@ -68,6 +69,7 @@ class CommentViewSet(Votable):
 class QuestionViewSet(
     mixins.RetrieveModelMixin,
     mixins.DestroyModelMixin,
+    mixins.UpdateModelMixin,
     Votable
 ):
     model = models.Question
@@ -97,4 +99,20 @@ class QuestionViewSet(
 
         serializer = serializers.AnswerSerializer(answer)
         return HttpResponse(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        # only the 'title', text', 'tags' can be updated
+        partial = True  # apart from this, it is the default implementation
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
