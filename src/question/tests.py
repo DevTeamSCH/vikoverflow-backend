@@ -494,11 +494,380 @@ class PutQuestionTestCase(APITestCase):
         self.client.logout()
 
 
+class EditAnswerTestCase(APITestCase):
+
+    def setUp(self):
+        # Users
+        submitter = Profile.objects.create(
+            user=User.objects.create(
+                username='submitter'
+            )
+        )
+
+        Profile.objects.create(
+            user=User.objects.create(
+                username='other_user'
+            )
+        )
+
+        # Content
+        question = Question.objects.create(
+            title='What does the fox say?',
+            text='But there\'s one sound\n'
+                 + 'That no one knows\n'
+                 + 'What does the fox say?',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=submitter
+        )
+        Answer.objects.create(
+            text='Ring-ding-ding-ding-dingeringeding!',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=submitter,
+            parent=question,
+            is_accepted=False
+        )
+
+    def test_edit_text_no_login(self):
+        answer_id = Answer.objects.get(
+            text='Ring-ding-ding-ding-dingeringeding!'
+        ).id
+        url = reverse('answers-detail', args=[answer_id])
+
+        data = {
+            "text": "Hatee-hatee-hatee-ho!"
+        }
+
+        response = self.client.put(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_edit_text_answer_owner(self):
+        submitter = User.objects.get(username='submitter')
+        self.client.force_login(submitter)
+
+        answer_id = Answer.objects.get(
+            text='Ring-ding-ding-ding-dingeringeding!'
+        ).id
+        url = reverse('answers-detail', args=[answer_id])
+
+        new_text = "Hatee-hatee-hatee-ho!"
+
+        data = {
+            "text": new_text
+        }
+
+        response = self.client.put(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Answer.objects.get(id=answer_id).text, new_text)
+
+        self.client.logout()
+
+    def test_edit_text_other_user(self):
+        other_user = User.objects.get(username='other_user')
+        self.client.force_login(other_user)
+
+        answer_id = Answer.objects.get(
+            text='Ring-ding-ding-ding-dingeringeding!'
+        ).id
+        url = reverse('answers-detail', args=[answer_id])
+
+        new_text = "Hatee-hatee-hatee-ho!"
+
+        data = {
+            "text": new_text
+        }
+
+        response = self.client.put(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.logout()
 
 
+class AcceptAnswerTestCase(APITestCase):
+
+    def setUp(self):
+        # Users
+        question_submitter = Profile.objects.create(
+            user=User.objects.create(
+                username='question_submitter'
+            )
+        )
+
+        answer_submitter_0 = Profile.objects.create(
+            user=User.objects.create(
+                username='answer_submitter_0'
+            )
+        )
+
+        answer_submitter_1 = Profile.objects.create(
+            user=User.objects.create(
+                username='answer_submitter_1'
+            )
+        )
+
+        # Content
+        question = Question.objects.create(
+            title='What does the fox say?',
+            text='But there\'s one sound\n'
+                 + 'That no one knows\n'
+                 + 'What does the fox say?',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=question_submitter
+        )
+        Answer.objects.create(
+            text='Ring-ding-ding-ding-dingeringeding!',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=answer_submitter_0,
+            parent=question,
+            is_accepted=True
+        )
+
+        Answer.objects.create(
+            text='Hatee-hatee-hatee-ho!',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=answer_submitter_1,
+            parent=question,
+            is_accepted=False
+        )
+
+    def test_accept_answer_no_login(self):
+        answer_id = Answer.objects.get(
+            text='Hatee-hatee-hatee-ho!'
+        ).id
+        url = reverse('answers-accept', args=[answer_id])
+
+        data = {
+            "accepted": True
+        }
+
+        response = self.client.put(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(Answer.objects.get(id=answer_id).is_accepted)
+
+    def test_accept_answer_question_owner(self):
+        question_submitter = User.objects.get(username='question_submitter')
+        self.client.force_login(question_submitter)
+
+        answer_id = Answer.objects.get(
+            text='Hatee-hatee-hatee-ho!'
+        ).id
+        url = reverse('answers-accept', args=[answer_id])
+
+        data = {
+            "accepted": True
+        }
+
+        response = self.client.put(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(Answer.objects.get(id=answer_id).is_accepted)
+
+        self.client.logout()
+
+    def test_accept_answer_other_user(self):
+        other_user = User.objects.get(username='answer_submitter_0')
+        self.client.force_login(other_user)
+
+        answer_id = Answer.objects.get(
+            text='Hatee-hatee-hatee-ho!'
+        ).id
+        url = reverse('answers-accept', args=[answer_id])
+
+        data = {
+            "accepted": True
+        }
+
+        response = self.client.put(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(Answer.objects.get(id=answer_id).is_accepted)
+
+        self.client.logout()
+
+    def test_unaccept_answer_no_login(self):
+        answer_id = Answer.objects.get(
+            text='Ring-ding-ding-ding-dingeringeding!'
+        ).id
+        url = reverse('answers-accept', args=[answer_id])
+
+        data = {
+            "accepted": False
+        }
+
+        response = self.client.put(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_unaccept_answer_question_owner(self):
+        question_submitter = User.objects.get(username='question_submitter')
+        self.client.force_login(question_submitter)
+
+        answer_id = Answer.objects.get(
+            text='Ring-ding-ding-ding-dingeringeding!'
+        ).id
+        url = reverse('answers-accept', args=[answer_id])
+
+        data = {
+            "accepted": False
+        }
+
+        response = self.client.put(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(Answer.objects.get(id=answer_id).is_accepted)
+
+        self.client.logout()
+
+    def test_unaccept_answer_other_user(self):
+        other_user = User.objects.get(username='answer_submitter_0')
+        self.client.force_login(other_user)
+
+        answer_id = Answer.objects.get(
+            text='Ring-ding-ding-ding-dingeringeding!'
+        ).id
+        url = reverse('answers-accept', args=[answer_id])
+
+        data = {
+            "accepted": False
+        }
+
+        response = self.client.put(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.logout()
+
+    def test_key_error(self):
+        question_submitter = User.objects.get(username='question_submitter')
+        self.client.force_login(question_submitter)
+
+        answer_id = Answer.objects.get(
+            text='Hatee-hatee-hatee-ho!'
+        ).id
+        url = reverse('answers-accept', args=[answer_id])
+
+        # Missing "accepted" key in request data
+        data = {
+            "": True
+        }
+
+        response = self.client.put(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(Answer.objects.get(id=answer_id).is_accepted)
+
+        self.client.logout()
 
 
+class DeleteAnswerTestCase(APITestCase):
 
+    def setUp(self):
+        # Users
+        question_submitter = Profile.objects.create(
+            user=User.objects.create(
+                username='question_submitter'
+            )
+        )
 
+        answer_submitter_0 = Profile.objects.create(
+            user=User.objects.create(
+                username='answer_submitter_0'
+            )
+        )
 
+        answer_submitter_1 = Profile.objects.create(
+            user=User.objects.create(
+                username='answer_submitter_1'
+            )
+        )
 
+        # Content
+        question = Question.objects.create(
+            title='What does the fox say?',
+            text='But there\'s one sound\n'
+                 + 'That no one knows\n'
+                 + 'What does the fox say?',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=question_submitter
+        )
+        Answer.objects.create(
+            text='Ring-ding-ding-ding-dingeringeding!',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=answer_submitter_0,
+            parent=question,
+            is_accepted=True
+        )
+
+        Answer.objects.create(
+            text='Hatee-hatee-hatee-ho!',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=answer_submitter_1,
+            parent=question,
+            is_accepted=False
+        )
+
+    def test_delete_no_login(self):
+        answer_id = Answer.objects.get(
+            text='Hatee-hatee-hatee-ho!'
+        ).id
+        url = reverse('answers-detail', args=[answer_id])
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_own_answer(self):
+        answer_submitter = User.objects.get(username='answer_submitter_0')
+        self.client.force_login(answer_submitter)
+
+        answer_id = Answer.objects.get(
+            owner__user=answer_submitter
+        ).id
+        url = reverse('answers-detail', args=[answer_id])
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.client.logout()
+
+    def test_delete_other_user(self):
+        other_user = User.objects.get(username='answer_submitter_1')
+        self.client.force_login(other_user)
+
+        answer_id = Answer.objects.get(
+            owner__user__username='answer_submitter_0'
+        ).id
+        url = reverse('answers-detail', args=[answer_id])
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.logout()
+
+    def test_delete_question_submitter(self):
+        question_submitter = User.objects.get(username='question_submitter')
+        self.client.force_login(question_submitter)
+
+        answer_id = Answer.objects.get(
+            owner__user__username='answer_submitter_0'
+        ).id
+        url = reverse('answers-detail', args=[answer_id])
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.logout()

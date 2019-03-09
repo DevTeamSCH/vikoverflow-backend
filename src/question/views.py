@@ -12,7 +12,7 @@ from . import models
 from . import serializers
 from account.models import Profile
 from common.models import Votes
-from . permissions import QuestionOwnerOrSafeMethod
+from . permissions import QuestionOwnerOrSafeMethod, AnswerOwnerCanModify, AnswerQuestionOwner
 
 
 def handle_vote(abstract_comment, request):
@@ -56,9 +56,34 @@ class Votable(viewsets.GenericViewSet):
         return handle_vote(abstract_comment, request)
 
 
-class AnswerViewSet(Votable):
+class AnswerViewSet(
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    Votable
+):
     model = models.Answer
     serializer_class = serializers.AnswerSerializer
+    permission_classes = [AnswerOwnerCanModify]
+
+    def update(self, request, *args, **kwargs):
+        return super(AnswerViewSet, self).update(request, *args, **kwargs, partial=True)
+
+    @action(detail=True, methods=['put'], permission_classes=[AnswerQuestionOwner])
+    def accept(self, request, pk):
+        try:
+            accepted = request.data['accepted']
+        except KeyError:
+            return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+        answer = self.get_object()
+        answer.is_accepted = accepted
+        answer.save()
+        serializer = serializers.AnswerSerializer(answer)
+        return HttpResponse(serializer.data, status=status.HTTP_200_OK)
+
+    def get_object(self):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 class CommentViewSet(Votable):

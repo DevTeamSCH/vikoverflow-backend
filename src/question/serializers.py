@@ -45,7 +45,9 @@ class AnswerSerializer(AbstractCommentSerializer):
             'is_accepted',
             'comments'
         )
-        read_only_fields = ('created_at', 'updated_at')
+        read_only_fields = (
+            'created_at', 'updated_at', 'owner', 'show_username', 'vote_count', 'user_vote', 'is_accepted', 'comments'
+        )
 
 
 class QuestionSerializer(TaggitSerializer, AbstractCommentSerializer):
