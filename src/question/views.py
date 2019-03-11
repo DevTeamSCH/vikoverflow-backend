@@ -5,7 +5,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from rest_framework.response import Response
 
 from . import models
@@ -60,10 +60,37 @@ class AnswerViewSet(Votable):
     model = models.Answer
     serializer_class = serializers.AnswerSerializer
 
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def comments(self, request, pk):
+        answer = get_object_or_404(self.model, pk)
+        user_profile = request.user.profile
 
-class CommentViewSet(Votable):
+        try:
+            text = request.data['text']
+            show_username = request.data['show_username']
+        except KeyError:
+            return HttpResponseBadRequest('Text and show_username field cannot be empty!')
+        comment = models.Comment.objects.create(
+            text=text,
+            show_username=show_username,
+            votes=Votes.objects.create(),
+            parent_answer = answer,
+            owner=user_profile
+        )
+        serializer = serializers.CommentSerializer(comment)
+        return HttpResponse(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CommentViewSet(
+        Votable,
+        mixins.DestroyModelMixin,
+        mixins.UpdateModelMixin,
+        # mixins.RetrieveModelMixin
+
+):
     model = models.Comment
     serializer_class = serializers.CommentSerializer
+    permission_classes = [QuestionOwnerOrSafeMethod]
 
 
 class QuestionViewSet(
@@ -116,3 +143,22 @@ class QuestionViewSet(
 
         return Response(serializer.data)
 
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def comments(self, request, pk):
+        question = get_object_or_404(self.model, pk)
+        user_profile = request.user.profile
+
+        try:
+            text = request.data['text']
+            show_username = request.data['show_username']
+        except KeyError:
+            return HttpResponseBadRequest('Text and show_username field cannot be empty!')
+        comment = models.Comment.objects.create(
+            text=text,
+            show_username=show_username,
+            votes=Votes.objects.create(),
+            parent_question = question,
+            owner=user_profile
+        )
+        serializer = serializers.CommentSerializer(comment)
+        return HttpResponse(serializer.data, status=status.HTTP_201_CREATED)

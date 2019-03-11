@@ -7,6 +7,7 @@ from account.models import Profile
 class AbstractCommentSerializer(serializers.ModelSerializer):
     vote_count = serializers.SerializerMethodField()
     user_vote = serializers.SerializerMethodField()
+    username = serializers.SerializerMethodField()
 
     class Meta:
         model = models.AbstractComment
@@ -33,3 +34,9 @@ class AbstractCommentSerializer(serializers.ModelSerializer):
                 return 'none'
         except:
             return 'none'
+
+    def get_username(self, obj):
+        if obj.show_username is True:
+            return obj.owner.user.username
+        else
+            return 'Anonymus'
