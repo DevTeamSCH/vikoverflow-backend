@@ -38,5 +38,5 @@ class AbstractCommentSerializer(serializers.ModelSerializer):
     def get_username(self, obj):
         if obj.show_username is True:
             return obj.owner.user.username
-        else
+        else:
             return 'Anonymus'
