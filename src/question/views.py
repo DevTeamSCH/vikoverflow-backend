@@ -12,7 +12,7 @@ from . import models
 from . import serializers
 from account.models import Profile
 from common.models import Votes
-from . permissions import QuestionOwnerOrSafeMethod, QuestionOwnerOrAdminOrSafeMethod
+from . permissions import QuestionOwnerOrSafeMethod, QuestionOwnerOrStaffOrSafeMethod
 
 
 def handle_vote(abstract_comment, request):
@@ -83,13 +83,11 @@ class AnswerViewSet(Votable):
 class CommentViewSet(
         Votable,
         mixins.DestroyModelMixin,
-        mixins.UpdateModelMixin,
-        mixins.RetrieveModelMixin
-
+        mixins.UpdateModelMixin
 ):
     model = models.Comment
     serializer_class = serializers.CommentSerializer
-    permission_classes = [QuestionOwnerOrAdminOrSafeMethod]
+    permission_classes = [QuestionOwnerOrStaffOrSafeMethod]
 
 
 class QuestionViewSet(

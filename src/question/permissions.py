@@ -10,7 +10,7 @@ class QuestionOwnerOrSafeMethod(BasePermission):
         return False
 
 
-class QuestionOwnerOrAdminOrSafeMethod(BasePermission):
+class QuestionOwnerOrStaffOrSafeMethod(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True
