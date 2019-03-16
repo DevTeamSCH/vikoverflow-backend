@@ -22,12 +22,16 @@ class CommentSerializer(AbstractCommentSerializer):
     class Meta:
         model = models.Comment
         fields = (
+            'id',
             'text',
             'show_username',
+            'created_at',
+            'updated_at',
+            'username',
             'vote_count',
             'user_vote',
         )
-        read_only_fields = ('created_at', 'updated_at', 'username')
+        read_only_fields = ('created_at', 'updated_at', 'username', 'vote_count', 'user_vote',)
         
 
 class AnswerSerializer(AbstractCommentSerializer):

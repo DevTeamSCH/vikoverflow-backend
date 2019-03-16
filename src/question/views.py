@@ -12,7 +12,7 @@ from . import models
 from . import serializers
 from account.models import Profile
 from common.models import Votes
-from . permissions import QuestionOwnerOrSafeMethod
+from . permissions import QuestionOwnerOrSafeMethod, QuestionOwnerOrAdminOrSafeMethod
 
 
 def handle_vote(abstract_comment, request):
@@ -62,9 +62,8 @@ class AnswerViewSet(Votable):
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def comments(self, request, pk):
-        answer = get_object_or_404(self.model, pk)
+        answer = get_object_or_404(self.model, pk=pk)
         user_profile = request.user.profile
-
         try:
             text = request.data['text']
             show_username = request.data['show_username']
@@ -74,7 +73,7 @@ class AnswerViewSet(Votable):
             text=text,
             show_username=show_username,
             votes=Votes.objects.create(),
-            parent_answer = answer,
+            parent_answer=answer,
             owner=user_profile
         )
         serializer = serializers.CommentSerializer(comment)
@@ -85,12 +84,12 @@ class CommentViewSet(
         Votable,
         mixins.DestroyModelMixin,
         mixins.UpdateModelMixin,
-        # mixins.RetrieveModelMixin
+        mixins.RetrieveModelMixin
 
 ):
     model = models.Comment
     serializer_class = serializers.CommentSerializer
-    permission_classes = [QuestionOwnerOrSafeMethod]
+    permission_classes = [QuestionOwnerOrAdminOrSafeMethod]
 
 
 class QuestionViewSet(
@@ -145,9 +144,8 @@ class QuestionViewSet(
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def comments(self, request, pk):
-        question = get_object_or_404(self.model, pk)
+        question = get_object_or_404(self.model, pk=pk)
         user_profile = request.user.profile
-
         try:
             text = request.data['text']
             show_username = request.data['show_username']
@@ -157,7 +155,7 @@ class QuestionViewSet(
             text=text,
             show_username=show_username,
             votes=Votes.objects.create(),
-            parent_question = question,
+            parent_question=question,
             owner=user_profile
         )
         serializer = serializers.CommentSerializer(comment)

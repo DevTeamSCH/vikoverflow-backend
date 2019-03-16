@@ -53,13 +53,15 @@ class Comment(AbstractComment):
         'question.Answer',
         on_delete=models.CASCADE,
         related_name='comments',
-        null=True
+        null=True,
+        blank=True
     )
     parent_question = models.ForeignKey(
         'question.Question',
         on_delete=models.CASCADE,
         related_name='comments',
-        null=True
+        null=True,
+        blank=True
     )
 
     @property
