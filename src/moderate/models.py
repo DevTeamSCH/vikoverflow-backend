@@ -1,10 +1,9 @@
-from datetime import datetime
-
 from django.contrib.auth.models import User
-from django.db import models
-from django.utils.translation import gettext as _
-from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
+from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from account.models import Profile
 
@@ -41,7 +40,7 @@ class Report(models.Model):
 
     def close(self):
         self.status = ReportStatus.CLOSED
-        self.closed_at = datetime.now()
+        self.closed_at = timezone.now()
 
     def reopen(self):
         self.status = ReportStatus.OPENED
