@@ -1,13 +1,27 @@
 sudo: required
 dist: xenial
+language: python
+
+python:
+  - "3.6"
 
 services:
-- docker
+  - postgresql
+
+env:
+  - CONFIG_FILE=${TRAVIS_BUILD_DIR}/travis_config.yaml
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y graphviz-dev
 
 install:
-- docker-compose pull
-- docker-compose build
-- docker volume create --name=vikoverflow-data
+  - pip install pipenv
+  - pipenv lock
+  - pipenv install --system --dev
+
+before_script:
+  - pipenv run src/manage.py migrate
 
 script:
-- docker-compose run backend sh -c "cd src; python manage.py test"
+  - pipenv run src/manage.py test
