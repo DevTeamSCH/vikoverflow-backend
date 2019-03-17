@@ -5,24 +5,24 @@ from account.models import Profile
 
 
 class Votes(models.Model):
-        upvoters = models.ManyToManyField(
-            Profile,
-            related_name="upvotes",
-        )
-        downvoters = models.ManyToManyField(
-            Profile,
-            related_name="downvotes",
+    upvoters = models.ManyToManyField(
+        Profile,
+        related_name="upvotes",
+    )
+    downvoters = models.ManyToManyField(
+        Profile,
+        related_name="downvotes",
+    )
+
+    def comment_item_name(self):
+        return (
+            self.answer_comment_item
+            or self.question_comment_item
+            or self.comment_comment_item
         )
 
-        def comment_item_name(self):
-            return (
-                self.answer_comment_item
-                or self.question_comment_item
-                or self.comment_comment_item
-            )
-
-        def __str__(self):
-            return ''.join([str(self.comment_item_name()), '\'s votes'])
+    def __str__(self):
+        return ''.join([str(self.comment_item_name()), '\'s votes'])
 
 
 class AbstractComment(SoftDeleteModel):

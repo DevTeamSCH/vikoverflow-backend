@@ -1,18 +1,17 @@
-from rest_framework import viewsets
-from rest_framework import mixins
-from rest_framework import status
-from rest_framework import generics
-from rest_framework import permissions
-from rest_framework.decorators import action
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from rest_framework import mixins
+from rest_framework import permissions
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from . import models
-from . import serializers
 from account.models import Profile
 from common.models import Votes
-from . permissions import QuestionOwnerOrSafeMethod, AnswerOwnerCanModify, AnswerQuestionOwner
+from . import models
+from . import serializers
+from .permissions import QuestionOwnerOrSafeMethod, AnswerOwnerCanModify, AnswerQuestionOwner
 
 
 def handle_vote(abstract_comment, request):
@@ -140,4 +139,3 @@ class QuestionViewSet(
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
-

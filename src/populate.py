@@ -1,18 +1,18 @@
 import os
+import datetime
+import random
 
 import django
+from django.core.management import call_command
+from faker import Faker
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vikoverflow.settings.local")
 django.setup()
 
-from faker import Faker
-import random
-from common.models import Votes
-from django.contrib.auth.models import User
-from account.models import Profile
-from django.core.management import call_command
-from question.models import Question, Answer, Comment
-import datetime
+from common.models import Votes  # noqa
+from django.contrib.auth.models import User  # noqa
+from account.models import Profile  # noqa
+from question.models import Question, Answer, Comment  # noqa
 
 call_command('flush')
 

@@ -2,10 +2,9 @@ from django.db import models
 from soft_delete_it.models import SoftDeleteModel
 from taggit.managers import TaggableManager
 from taggit.models import TagBase, ItemBase
-from django.core.exceptions import ValidationError
 
-from common.models import AbstractComment
 from account.models import Profile
+from common.models import AbstractComment
 
 
 class QuestionTag(TagBase, SoftDeleteModel):

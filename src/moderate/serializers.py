@@ -19,7 +19,8 @@ class ReportSerializer(ModelSerializer):
 
     class Meta:
         model = Report
-        fields = ('pk', 'created_at', 'updated_at', 'closed_at', 'text', 'reporter', 'status', 'object_id', 'object_type', 'comments')
+        fields = ('pk', 'created_at', 'updated_at', 'closed_at', 'text', 'reporter', 'status', 'object_id',
+                  'object_type', 'comments')
         read_only_fields = ('pk', 'created_at', 'updated_at', 'closed_at', 'reporter', 'status', 'comments')
 
     def create(self, validated_data):

@@ -1,10 +1,8 @@
-from rest_framework import status
-from faker import Faker
-import random
-
-from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
+from faker import Faker
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 from .models import Profile
 from .serializers import ProfileSerializer
@@ -348,4 +346,3 @@ class AccountsTests(APITestCase):
         self.assertEqual(user.is_staff, User.objects.get(username=user.username).is_staff)
 
         self.client.logout()
-
