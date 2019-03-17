@@ -91,6 +91,7 @@ class CommentViewSet(Votable):
 
 
 class QuestionViewSet(
+    mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.DestroyModelMixin,
     mixins.UpdateModelMixin,
