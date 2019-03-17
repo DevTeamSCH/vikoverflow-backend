@@ -21,7 +21,8 @@ install:
   - pipenv install --system --dev
 
 before_script:
-  - pipenv run src/manage.py migrate
+  - cd src
+  - pipenv run ./manage.py migrate
 
 script:
-  - pipenv run src/manage.py test
+  - pipenv run ./manage.py test
