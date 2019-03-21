@@ -4,8 +4,8 @@
 
     # pip install pipenv
     $ pipenv install
-    $ CONFIG_FILE=./config pipenv run src/manage.py migrate
-    $ CONFIG_FILE=./config pipenv run src/manage.py runserver
+    $ CONFIG_FILE=./config.yaml pipenv run src/manage.py migrate
+    $ CONFIG_FILE=./config.yaml pipenv run src/manage.py runserver
 
 ### start with Docker
 
