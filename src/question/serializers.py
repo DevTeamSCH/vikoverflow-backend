@@ -1,10 +1,9 @@
-from rest_framework import serializers
-from common.serializers import AbstractCommentSerializer
+from rest_framework.exceptions import ValidationError
 from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer)
 
+from common.serializers import AbstractCommentSerializer
 from . import models
-from account.models import Profile
 
 
 class CommentSerializer(AbstractCommentSerializer):

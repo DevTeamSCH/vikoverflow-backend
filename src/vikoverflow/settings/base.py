@@ -14,7 +14,7 @@ import os
 import yaml
 
 with open(os.getenv('CONFIG_FILE', '/etc/vikoverflow/config.yaml'), 'r') as f:
-    YAML_SETTINGS = yaml.load(f)
+    YAML_SETTINGS = yaml.safe_load(f)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -27,7 +27,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 SECRET_KEY = YAML_SETTINGS.get('secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = YAML_SETTINGS.get('debug')
 
 ALLOWED_HOSTS = []
 
@@ -91,10 +91,11 @@ WSGI_APPLICATION = 'vikoverflow.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'db',
-        'PORT': 5432,
+        'NAME': YAML_SETTINGS.get('database').get('name'),
+        'USER': YAML_SETTINGS.get('database').get('user'),
+        'PASSWORD': YAML_SETTINGS.get('database').get('password'),
+        'HOST': YAML_SETTINGS.get('database').get('host'),
+        'PORT': YAML_SETTINGS.get('database').get('port'),
     }
 }
 

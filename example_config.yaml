@@ -2,3 +2,10 @@ secret_key: '%kcis5#b-w4axes_v6hmc3&s6ls@xgawhrvqgetp!!(^vba&ms' # WARNING: Dont
 authsch:
   secret: secret
   client_id: client_id
+debug: True
+database:
+  user: 'postgres'
+  password: ''
+  host: 'db'
+  port: 5432
+  name: 'postgres'

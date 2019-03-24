@@ -18,7 +18,6 @@ class VotingTestCase(APITestCase):
     url = None
     voter = None
 
-
     def prepare(self):
         self.abstract_comment = self.model.objects.all()[0]
         abstract_comment_url = ''.join(['http://localhost:8000/api/v1/', self.url_name, '/'])
@@ -27,7 +26,6 @@ class VotingTestCase(APITestCase):
         self.url = ''.join([abstract_comment_url, str(self.abstract_comment.id), '/vote/'])
         self.voter = User.objects.get(username='voter')
 
-
     def setUp(self):
         # Users
         submitter = Profile.objects.create(
@@ -35,7 +33,7 @@ class VotingTestCase(APITestCase):
                 username='submitter'
             )
         )
-        voter = Profile.objects.create(
+        Profile.objects.create(
             user=User.objects.create(
                 username='voter',
             )
@@ -56,7 +54,7 @@ class VotingTestCase(APITestCase):
             parent=question,
             is_accepted=False
         )
-        comment = Comment.objects.create(
+        Comment.objects.create(
             text='Apples suck.',
             votes=Votes.objects.create(),
             show_username=True,
@@ -69,7 +67,6 @@ class OneVoterQuestion(VotingTestCase):
     model = Question
     url_name = 'questions'
 
-
     def test_not_exist(self):
         self.prepare()
         abstract_comment_url = ''.join(['http://localhost:8000/api/v1/', self.url_name, '/'])
@@ -80,19 +77,16 @@ class OneVoterQuestion(VotingTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-
     def test_permissions(self):
         self.prepare()
         response = self.client.put(self.url, {'user_vote': 'up'})
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-
     def test_zero_votes(self):
         self.prepare()
         self.assertEqual(self.upvoters.all().count(), 0)
         self.assertEqual(self.downvoters.all().count(), 0)
-
 
     def test_up(self):
         self.prepare()
@@ -106,7 +100,6 @@ class OneVoterQuestion(VotingTestCase):
         self.assertEqual(self.upvoters.filter(user=self.voter).count(), 1)
         self.assertEqual(self.downvoters.filter(user=self.voter).count(), 0)
 
-
     def test_down(self):
         self.prepare()
         self.client.force_login(self.voter)
@@ -118,7 +111,6 @@ class OneVoterQuestion(VotingTestCase):
         self.assertEqual(self.downvoters.all().count(), 1)
         self.assertEqual(self.upvoters.filter(user=self.voter).count(), 0)
         self.assertEqual(self.downvoters.filter(user=self.voter).count(), 1)
-
 
     def test_none(self):
         self.prepare()
@@ -148,20 +140,17 @@ class TwoVotersQuestion(VotingTestCase):
 
     voter2 = None
 
-
     def setUp(self):
         super().setUp()
-        voter2 = Profile.objects.create(
+        Profile.objects.create(
             user=User.objects.create(
                 username='voter2',
             )
         )
 
-
     def prepare(self):
         super().prepare()
         self.voter2 = User.objects.get(username='voter2')
-
 
     def test_up_up(self):
         self.prepare()
@@ -179,7 +168,6 @@ class TwoVotersQuestion(VotingTestCase):
         self.assertEqual(self.downvoters.filter(user=self.voter).count(), 0)
         self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 0)
 
-
     def test_up_down(self):
         self.prepare()
         self.client.force_login(self.voter)
@@ -195,7 +183,6 @@ class TwoVotersQuestion(VotingTestCase):
         self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 1)
         self.assertEqual(self.upvoters.filter(user=self.voter2).count(), 0)
         self.assertEqual(self.downvoters.filter(user=self.voter).count(), 0)
-
 
     def test_up_none(self):
         self.prepare()
@@ -213,7 +200,6 @@ class TwoVotersQuestion(VotingTestCase):
         self.assertEqual(self.upvoters.filter(user=self.voter2).count(), 0)
         self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 0)
 
-
     def test_down_down(self):
         self.prepare()
         self.client.force_login(self.voter)
@@ -230,7 +216,6 @@ class TwoVotersQuestion(VotingTestCase):
         self.assertEqual(self.upvoters.filter(user=self.voter2).count(), 0)
         self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 1)
 
-
     def test_down_none(self):
         self.prepare()
         self.client.force_login(self.voter)
@@ -246,7 +231,6 @@ class TwoVotersQuestion(VotingTestCase):
         self.assertEqual(self.downvoters.filter(user=self.voter).count(), 1)
         self.assertEqual(self.upvoters.filter(user=self.voter2).count(), 0)
         self.assertEqual(self.downvoters.filter(user=self.voter2).count(), 0)
-
 
     def test_none_none(self):
         self.prepare()
@@ -285,13 +269,13 @@ class AnswerQuestionTestCase(APITestCase):
                 username='submitter'
             )
         )
-        answerer = Profile.objects.create(
+        Profile.objects.create(
             user=User.objects.create(
                 username='answerer',
             )
         )
         # Content
-        question = Question.objects.create(
+        Question.objects.create(
             title='What is love?',
             text='Baby don\'t hurt me!',
             votes=Votes.objects.create(),
@@ -362,13 +346,13 @@ class DeleteQuestionTestCase(APITestCase):
                 username='submitter'
             )
         )
-        other_user = Profile.objects.create(
+        Profile.objects.create(
             user=User.objects.create(
                 username='other_user',
             )
         )
         # Content
-        question = Question.objects.create(
+        Question.objects.create(
             title='What is love?',
             text='Baby don\'t hurt me!',
             votes=Votes.objects.create(),
@@ -417,13 +401,13 @@ class PutQuestionTestCase(APITestCase):
                 username='submitter'
             )
         )
-        other_user = Profile.objects.create(
+        Profile.objects.create(
             user=User.objects.create(
                 username='other_user',
             )
         )
         # Content
-        question = Question.objects.create(
+        Question.objects.create(
             title='What is love?',
             text='Baby don\'t hurt me!',
             votes=Votes.objects.create(),
