@@ -171,4 +171,3 @@ class QuestionViewSet(
         )
         serializer = serializers.QuestionSerializer(question)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
