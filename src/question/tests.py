@@ -477,6 +477,99 @@ class PutQuestionTestCase(APITestCase):
 
         self.client.logout()
 
+    def test_owner_additional_keys(self):
+        submitter_user = User.objects.get(username='submitter')
+        self.client.force_login(submitter_user)
+
+        data = {
+            "title": "Test title",
+            "text": "Test text",
+            "tags": [
+                "test",
+                "put"
+            ],
+            "show_username": False
+        }
+
+        response = self.client.put(self.url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        question = Question.objects.get(owner__user=submitter_user)
+        self.assertEqual(question.title, data['title'])
+        self.assertEqual(question.text, data['text'])
+        for tag in question.tags.all():
+            self.assertTrue(tag.name in data["tags"])
+
+        self.assertTrue(question.show_username)
+
+        self.client.logout()
+
+
+class PostQuestionTestCase(APITestCase):
+    url = ''
+
+    def setUp(self):
+        # Users
+        submitter = Profile.objects.create(
+            user=User.objects.create(
+                username='submitter'
+            )
+        )
+        Profile.objects.create(
+            user=User.objects.create(
+                username='other_user',
+            )
+        )
+        # Content
+        Question.objects.create(
+            title='What is love?',
+            text='Baby don\'t hurt me!',
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=submitter
+        )
+
+        # Set up URL
+        self.url = reverse("questions-list")
+
+    def test_no_login(self):
+        data = {
+            "title": "POST title",
+            "text": "POST text",
+            "tags": [
+                "test",
+                "post"
+            ]
+        }
+
+        response = self.client.post(self.url, data=data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_logged_in(self):
+
+        submitter_user = User.objects.get(username='submitter')
+        self.client.force_login(submitter_user)
+
+        data = {
+            "title": "POST title",
+            "text": "POST text",
+            "tags": [
+                "test",
+                "post"
+            ]
+        }
+
+        response = self.client.post(self.url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        question = Question.objects.get(title="POST title")
+        self.assertEqual(question.text, data['text'])
+        for tag in question.tags.all():
+            self.assertTrue(tag.name in data["tags"])
+
+        self.client.logout()
+
 
 class EditAnswerTestCase(APITestCase):
 
