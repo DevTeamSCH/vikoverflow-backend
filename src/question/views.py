@@ -11,7 +11,7 @@ from account.models import Profile
 from common.models import Votes
 from . import models
 from . import serializers
-from .permissions import QuestionOwnerOrSafeMethod, AnswerOwnerCanModify, AnswerQuestionOwner
+from .permissions import QuestionOwnerOrSafeMethodOrLoggedInCreate, AnswerOwnerCanModify, AnswerQuestionOwner
 
 
 def handle_vote(abstract_comment, request):
@@ -95,11 +95,12 @@ class QuestionViewSet(
     mixins.RetrieveModelMixin,
     mixins.DestroyModelMixin,
     mixins.UpdateModelMixin,
+    mixins.CreateModelMixin,
     Votable
 ):
     model = models.Question
     serializer_class = serializers.QuestionSerializer
-    permission_classes = [QuestionOwnerOrSafeMethod]
+    permission_classes = [QuestionOwnerOrSafeMethodOrLoggedInCreate]
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def answers(self, request, pk):
@@ -127,16 +128,46 @@ class QuestionViewSet(
 
     def update(self, request, *args, **kwargs):
         # only the 'title', text', 'tags' can be updated
-        partial = True  # apart from this, it is the default implementation
-        instance = self.get_object()
+        allowed_keys = ['title', 'text', 'tags']
+        keys_to_delete = list()
 
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        for key in request.data.keys():
+            if key not in allowed_keys:
+                keys_to_delete.append(key)
 
-        if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
+        for key in keys_to_delete:
+            request.data.pop(key, None)
 
-        return Response(serializer.data)
+        return super(QuestionViewSet, self).update(request, partial=True)
+
+    def create(self, request, *args, **kwargs):
+        # only the 'title', 'text', 'tags' can be posted
+        allowed_keys = ['title', 'text', 'tags']
+        keys_to_delete = list()
+
+        for key in request.data.keys():
+            if key not in allowed_keys:
+                keys_to_delete.append(key)
+
+        for key in keys_to_delete:
+            request.data.pop(key, None)
+
+        user_profile = request.user.profile
+
+        try:
+            title = request.data['title']
+            text = request.data['text']
+            tags = request.data['tags']
+        except KeyError:
+            return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+
+        question = models.Question.objects.create(
+            title=title,
+            text=text,
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=user_profile,
+            tags=tags
+        )
+        serializer = serializers.QuestionSerializer(question)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
