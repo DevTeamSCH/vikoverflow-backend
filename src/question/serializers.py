@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
 
+
 from common.serializers import AbstractCommentSerializer
 from . import models
 
@@ -16,7 +17,7 @@ class CommentSerializer(AbstractCommentSerializer):
 
     class Meta:
         model = models.Comment
-        fields = ("text", "owner", "show_username", "vote_count", "user_vote")
+        fields = ("text", "owner", "vote_count", "user_vote")
         read_only_fields = ("created_at", "updated_at")
 
 
@@ -28,7 +29,6 @@ class AnswerSerializer(AbstractCommentSerializer):
         fields = (
             "text",
             "owner",
-            "show_username",
             "vote_count",
             "user_vote",
             "is_accepted",
@@ -38,7 +38,6 @@ class AnswerSerializer(AbstractCommentSerializer):
             "created_at",
             "updated_at",
             "owner",
-            "show_username",
             "vote_count",
             "user_vote",
             "is_accepted",
@@ -58,7 +57,6 @@ class QuestionSerializer(TaggitSerializer, AbstractCommentSerializer):
             "text",
             "tags",
             "owner",
-            "show_username",
             "vote_count",
             "user_vote",
             "comments",
@@ -77,7 +75,6 @@ class QuestionListSerializer(TaggitSerializer, AbstractCommentSerializer):
             "id",
             "title",
             "owner",
-            "show_username",
             "vote_count",
             "user_vote",
             "answer_count",
