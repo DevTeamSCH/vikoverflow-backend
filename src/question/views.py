@@ -102,6 +102,11 @@ class QuestionViewSet(
     serializer_class = serializers.QuestionSerializer
     permission_classes = [QuestionOwnerOrSafeMethodOrLoggedInCreate]
 
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return serializers.QuestionListSerializer
+        return serializers.QuestionSerializer
+
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def answers(self, request, pk):
         question = get_object_or_404(self.model, pk=pk)
