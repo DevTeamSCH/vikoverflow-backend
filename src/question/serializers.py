@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer)
@@ -88,4 +89,4 @@ class QuestionListSerializer(TaggitSerializer, AbstractCommentSerializer):
 
 
     def get_answer_count(self, obj):
-        models.Answer.objects.filter(parent = obj.id).count()
+        return models.Answer.objects.filter(parent = obj.id).count()
