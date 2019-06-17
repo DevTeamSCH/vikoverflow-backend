@@ -1,7 +1,8 @@
 from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework import permissions
-
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from common.mixins import RelativeURLFieldMixin
 from .permissions import IsSafeMethodOrIsOwnOrIsAdmin
@@ -43,6 +44,11 @@ class ProfileViewSet(
             queryset = queryset.filter(user__is_active=is_active)
 
         return queryset
+
+    @action(detail=False)
+    def me(self, request):
+        serializer = serializers.OwnProfileSerializer(request.user.profile, many=False)
+        return Response(serializer.data)
 
 
 class AvatarViewSet(
