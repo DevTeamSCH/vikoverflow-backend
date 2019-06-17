@@ -47,7 +47,7 @@ class ProfileViewSet(
 
     @action(detail=False)
     def me(self, request):
-        serializer = self.get_serializer(request.user.profile, many=False)
+        serializer = serializers.OwnProfileSerializer(request.user.profile, many=False)
         return Response(serializer.data)
 
 
