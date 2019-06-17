@@ -73,7 +73,7 @@ class QuestionSerializer(TaggitSerializer, AbstractCommentSerializer):
 
 class QuestionListSerializer(TaggitSerializer, AbstractCommentSerializer):
     answer_count = serializers.SerializerMethodField()
-
+    answerd = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Question
@@ -85,9 +85,13 @@ class QuestionListSerializer(TaggitSerializer, AbstractCommentSerializer):
             'vote_count',
             'user_vote',
             'answer_count',
+            'answerd'
         )
         read_only_fields = ('created_at', 'updated_at')
 
 
     def get_answer_count(self, obj):
-        return models.Answer.objects.filter(parent = obj.id).count()
+        return models.Answer.objects.filter(parent=obj.id).count()
+
+    def get_answerd(self, obj):
+        return models.Answer.objects.filter(parent=obj.id, is_accepted=True).count()
