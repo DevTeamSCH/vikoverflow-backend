@@ -78,6 +78,7 @@ class QuestionListSerializer(TaggitSerializer, AbstractCommentSerializer):
     class Meta:
         model = models.Question
         fields = (
+            'id',
             'title',
             'owner',
             'show_username',
