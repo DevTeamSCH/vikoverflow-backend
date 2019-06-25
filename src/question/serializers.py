@@ -69,7 +69,7 @@ class QuestionSerializer(TaggitSerializer, AbstractCommentSerializer):
 
 class QuestionListSerializer(TaggitSerializer, AbstractCommentSerializer):
     answer_count = serializers.SerializerMethodField()
-    answerd = serializers.SerializerMethodField()
+    answered = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Question
