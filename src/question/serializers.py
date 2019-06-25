@@ -87,5 +87,5 @@ class QuestionListSerializer(TaggitSerializer, AbstractCommentSerializer):
     def get_answer_count(self, obj):
         return models.Answer.objects.filter(parent=obj.id).count()
 
-    def get_answerd(self, obj):
+    def get_answered(self, obj):
         return models.Answer.objects.filter(parent=obj.id, is_accepted=True).count()
