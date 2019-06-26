@@ -65,12 +65,12 @@ class Command(BaseCommand):
         users.append('admin')
 
         if not User.objects.filter(username='mod').exists():
-            User.objects.create(username='mod', is_staff=True)
+            User.objects.create(username='mod', is_staff=True, first_name='Mod', last_name='Mod')
             Profile.objects.create(user=User.objects.get(username='mod'))
         users.append('mod')
 
         if not User.objects.filter(username='user').exists():
-            User.objects.create(username='user')
+            User.objects.create(username='user', first_name='User', last_name='User')
             Profile.objects.create(user=User.objects.get(username='user'))
         users.append('user')
 
