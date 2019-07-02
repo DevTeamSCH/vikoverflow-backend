@@ -1,7 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
-from . import models
+from question import models
+
+
+admin.site.register(models.QuestionTag)
+admin.site.register(models.TaggedQuestion)
 admin.site.register(models.Question)
 admin.site.register(models.Answer)
 admin.site.register(models.Comment)

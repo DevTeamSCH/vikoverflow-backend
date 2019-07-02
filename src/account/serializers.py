@@ -6,6 +6,12 @@ from rest_framework import exceptions
 from . import models
 
 
+class OwnProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Profile
+        fields = ('id', 'full_name')
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

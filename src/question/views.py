@@ -11,7 +11,13 @@ from account.models import Profile
 from common.models import Votes
 from . import models
 from . import serializers
-from .permissions import QuestionOwnerOrSafeMethod, AnswerOwnerCanModify, AnswerQuestionOwner, QuestionOwnerOrStaffOrSafeMethod
+from .permissions import (
+    QuestionOwnerOrSafeMethod,
+    QuestionOwnerOrSafeMethodOrLoggedInCreate,
+    AnswerOwnerCanModify,
+    AnswerQuestionOwner,
+    QuestionOwnerOrStaffOrSafeMethod
+)
 
 
 def handle_vote(abstract_comment, request):
@@ -21,18 +27,18 @@ def handle_vote(abstract_comment, request):
     downvoters = abstract_comment.votes.downvoters
     bad_request = HttpResponse(status=status.HTTP_400_BAD_REQUEST)
     try:
-        vote = request.data['user_vote']
+        vote = request.data["user_vote"]
     except KeyError:
         return bad_request
-    if vote == 'up':
+    if vote == "up":
         if downvoters.filter(user=user).count() > 0:
             downvoters.remove(user_profile)
         upvoters.add(user_profile)
-    elif vote == 'down':
+    elif vote == "down":
         if upvoters.filter(user=user).count() > 0:
             upvoters.remove(user_profile)
         downvoters.add(user_profile)
-    elif vote == 'none':
+    elif vote == "none":
         if upvoters.filter(user=user).count() > 0:
             upvoters.remove(user_profile)
         elif downvoters.filter(user=user).count() > 0:
@@ -49,17 +55,15 @@ class Votable(viewsets.GenericViewSet):
         super().__init__(*args, **kwargs)
         self.queryset = self.model.objects.all()
 
-    @action(detail=True, methods=['put'], permission_classes=[permissions.IsAuthenticated])
+    @action(
+        detail=True, methods=["put"], permission_classes=[permissions.IsAuthenticated]
+    )
     def vote(self, request, pk):
         abstract_comment = get_object_or_404(self.model, pk=pk)
         return handle_vote(abstract_comment, request)
 
 
-class AnswerViewSet(
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    Votable
-):
+class AnswerViewSet(mixins.UpdateModelMixin, mixins.DestroyModelMixin, Votable):
     model = models.Answer
     serializer_class = serializers.AnswerSerializer
     permission_classes = [AnswerOwnerCanModify]
@@ -86,10 +90,10 @@ class AnswerViewSet(
         serializer = serializers.CommentSerializer(comment)
         return HttpResponse(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['put'], permission_classes=[AnswerQuestionOwner])
+    @action(detail=True, methods=["put"], permission_classes=[AnswerQuestionOwner])
     def accept(self, request, pk):
         try:
-            accepted = request.data['accepted']
+            accepted = request.data["accepted"]
         except KeyError:
             return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
         answer = self.get_object()
@@ -116,24 +120,33 @@ class CommentViewSet(
 
 
 class QuestionViewSet(
+    mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.DestroyModelMixin,
     mixins.UpdateModelMixin,
-    Votable
+    mixins.CreateModelMixin,
+    Votable,
 ):
     model = models.Question
     serializer_class = serializers.QuestionSerializer
-    permission_classes = [QuestionOwnerOrSafeMethod]
+    permission_classes = [QuestionOwnerOrSafeMethodOrLoggedInCreate]
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def get_serializer_class(self):
+        if self.action == "list":
+            return serializers.QuestionListSerializer
+        return serializers.QuestionSerializer
+
+    @action(
+        detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
+    )
     def answers(self, request, pk):
         question = get_object_or_404(self.model, pk=pk)
 
         user = request.user
         user_profile = Profile.objects.get(user=user)
         try:
-            text = request.data['text']
-            show_username = request.data['show_username']
+            text = request.data["text"]
+            show_username = request.data["show_username"]
         except KeyError:
             return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
 
@@ -143,7 +156,7 @@ class QuestionViewSet(
             votes=Votes.objects.create(),
             owner=user_profile,
             parent=question,
-            is_accepted=False
+            is_accepted=False,
         )
 
         serializer = serializers.AnswerSerializer(answer)
@@ -151,19 +164,49 @@ class QuestionViewSet(
 
     def update(self, request, *args, **kwargs):
         # only the 'title', text', 'tags' can be updated
-        partial = True  # apart from this, it is the default implementation
-        instance = self.get_object()
+        allowed_keys = ["title", "text", "tags"]
+        keys_to_delete = list()
 
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        for key in request.data.keys():
+            if key not in allowed_keys:
+                keys_to_delete.append(key)
 
-        if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
+        for key in keys_to_delete:
+            request.data.pop(key, None)
 
-        return Response(serializer.data)
+        return super(QuestionViewSet, self).update(request, partial=True)
+
+    def create(self, request, *args, **kwargs):
+        # only the 'title', 'text', 'tags' can be posted
+        allowed_keys = ["title", "text", "tags"]
+        keys_to_delete = list()
+
+        for key in request.data.keys():
+            if key not in allowed_keys:
+                keys_to_delete.append(key)
+
+        for key in keys_to_delete:
+            request.data.pop(key, None)
+            
+        user_profile = request.user.profile
+
+        try:
+            title = request.data["title"]
+            text = request.data["text"]
+            tags = request.data["tags"]
+        except KeyError:
+            return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+
+        question = models.Question.objects.create(
+            title=title,
+            text=text,
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=user_profile,
+            tags=tags,
+        )
+        serializer = serializers.QuestionSerializer(question)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def comments(self, request, pk):

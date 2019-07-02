@@ -1,17 +1,19 @@
 from rest_framework import serializers
+from account.serializers import OwnProfileSerializer
 
 from . import models
-from account.models import Profile
 
 
 class AbstractCommentSerializer(serializers.ModelSerializer):
     vote_count = serializers.SerializerMethodField()
     user_vote = serializers.SerializerMethodField()
-    username = serializers.SerializerMethodField()
+
+    owner = OwnProfileSerializer()
+
 
     class Meta:
         model = models.AbstractComment
-        fields = ('text', 'owner', 'show_username', 'vote_count', 'user_vote')
+        fields = ('text', 'owner', 'vote_count', 'user_vote')
         read_only_fields = ('created_at', 'updated_at')
 
     def get_vote_count(self, obj):
@@ -23,16 +25,16 @@ class AbstractCommentSerializer(serializers.ModelSerializer):
         try:
             current = self.context['request'].user.username
             if obj.votes.upvoters.filter(
-                user__username=current
+                    user__username=current
             ).count() > 0:
                 return 'up'
             elif obj.votes.downvoters.filter(
-                user__username=current
+                    user__username=current
             ).count() > 0:
                 return 'down'
             else:
                 return 'none'
-        except:
+        except KeyError:
             return 'none'
 
     def get_username(self, obj):
