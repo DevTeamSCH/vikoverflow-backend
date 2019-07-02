@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins
 from rest_framework import permissions
@@ -15,6 +15,7 @@ from .permissions import (
     QuestionOwnerOrSafeMethodOrLoggedInCreate,
     AnswerOwnerCanModify,
     AnswerQuestionOwner,
+    QuestionOwnerOrStaffOrSafeMethod
 )
 
 
@@ -69,6 +70,25 @@ class AnswerViewSet(mixins.UpdateModelMixin, mixins.DestroyModelMixin, Votable):
     def update(self, request, *args, **kwargs):
         return super(AnswerViewSet, self).update(request, *args, **kwargs, partial=True)
 
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def comments(self, request, pk):
+        answer = get_object_or_404(self.model, pk=pk)
+        user_profile = request.user.profile
+        try:
+            text = request.data['text']
+            show_username = request.data['show_username']
+        except KeyError:
+            return HttpResponseBadRequest('Text and show_username field cannot be empty!')
+        comment = models.Comment.objects.create(
+            text=text,
+            show_username=show_username,
+            votes=Votes.objects.create(),
+            parent_answer=answer,
+            owner=user_profile
+        )
+        serializer = serializers.CommentSerializer(comment)
+        return HttpResponse(serializer.data, status=status.HTTP_201_CREATED)
+
     @action(detail=True, methods=["put"], permission_classes=[AnswerQuestionOwner])
     def accept(self, request, pk):
         try:
@@ -87,9 +107,14 @@ class AnswerViewSet(mixins.UpdateModelMixin, mixins.DestroyModelMixin, Votable):
         return obj
 
 
-class CommentViewSet(Votable):
+class CommentViewSet(
+        Votable,
+        mixins.DestroyModelMixin,
+        mixins.UpdateModelMixin
+):
     model = models.Comment
     serializer_class = serializers.CommentSerializer
+    permission_classes = [QuestionOwnerOrStaffOrSafeMethod]
 
 
 class QuestionViewSet(
@@ -180,3 +205,22 @@ class QuestionViewSet(
         )
         serializer = serializers.QuestionSerializer(question)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def comments(self, request, pk):
+        question = get_object_or_404(self.model, pk=pk)
+        user_profile = request.user.profile
+        try:
+            text = request.data['text']
+            show_username = request.data['show_username']
+        except KeyError:
+            return HttpResponseBadRequest('Text and show_username field cannot be empty!')
+        comment = models.Comment.objects.create(
+            text=text,
+            show_username=show_username,
+            votes=Votes.objects.create(),
+            parent_question=question,
+            owner=user_profile
+        )
+        serializer = serializers.CommentSerializer(comment)
+        return HttpResponse(serializer.data, status=status.HTTP_201_CREATED)
