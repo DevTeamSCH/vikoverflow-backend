@@ -10,7 +10,6 @@ class AbstractCommentSerializer(serializers.ModelSerializer):
 
     owner = OwnProfileSerializer()
 
-
     class Meta:
         model = models.AbstractComment
         fields = ('text', 'owner', 'vote_count', 'user_vote')

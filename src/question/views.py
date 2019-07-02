@@ -69,7 +69,7 @@ class AnswerViewSet(mixins.UpdateModelMixin, mixins.DestroyModelMixin, Votable):
 
     def update(self, request, *args, **kwargs):
         return super(AnswerViewSet, self).update(request, *args, **kwargs, partial=True)
-        
+
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def comments(self, request, pk):
         answer = get_object_or_404(self.model, pk=pk)
@@ -105,7 +105,6 @@ class AnswerViewSet(mixins.UpdateModelMixin, mixins.DestroyModelMixin, Votable):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
         self.check_object_permissions(self.request, obj)
         return obj
-
 
 
 class CommentViewSet(
@@ -186,7 +185,7 @@ class QuestionViewSet(
 
         for key in keys_to_delete:
             request.data.pop(key, None)
-            
+
         user_profile = request.user.profile
 
         try:

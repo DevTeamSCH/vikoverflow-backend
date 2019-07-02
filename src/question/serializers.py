@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
 
 
@@ -32,7 +31,7 @@ class CommentSerializer(AbstractCommentSerializer):
             'user_vote',
         )
         read_only_fields = ('created_at', 'updated_at', 'username', 'vote_count', 'user_vote',)
-        
+
 
 class AnswerSerializer(AbstractCommentSerializer):
     comments = CommentSerializer(many=True)
