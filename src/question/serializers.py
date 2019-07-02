@@ -23,10 +23,9 @@ class CommentSerializer(AbstractCommentSerializer):
         fields = (
             'id',
             'text',
-            'show_username',
             'created_at',
             'updated_at',
-            'username',
+            'owner',
             'vote_count',
             'user_vote',
         )

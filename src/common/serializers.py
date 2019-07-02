@@ -7,8 +7,7 @@ from . import models
 class AbstractCommentSerializer(serializers.ModelSerializer):
     vote_count = serializers.SerializerMethodField()
     user_vote = serializers.SerializerMethodField()
-
-    owner = OwnProfileSerializer()
+    owner = serializers.SerializerMethodField()
 
     class Meta:
         model = models.AbstractComment
@@ -36,8 +35,8 @@ class AbstractCommentSerializer(serializers.ModelSerializer):
         except KeyError:
             return 'none'
 
-    def get_username(self, obj):
+    def get_owner(self, obj):
         if obj.show_username is True:
-            return obj.owner.user.username
+            return OwnProfileSerializer(obj.owner).data
         else:
-            return 'Anonymus'
+            return None
