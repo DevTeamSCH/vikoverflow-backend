@@ -29,7 +29,7 @@ SECRET_KEY = YAML_SETTINGS.get('secret_key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = YAML_SETTINGS.get('debug')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
