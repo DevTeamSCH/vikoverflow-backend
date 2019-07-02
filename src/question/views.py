@@ -12,7 +12,6 @@ from common.models import Votes
 from . import models
 from . import serializers
 from .permissions import (
-    QuestionOwnerOrSafeMethod,
     QuestionOwnerOrSafeMethodOrLoggedInCreate,
     AnswerOwnerCanModify,
     AnswerQuestionOwner,
