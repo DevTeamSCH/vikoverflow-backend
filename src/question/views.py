@@ -1,3 +1,5 @@
+import json
+
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins
@@ -87,7 +89,7 @@ class AnswerViewSet(mixins.UpdateModelMixin, mixins.DestroyModelMixin, Votable):
             owner=user_profile
         )
         serializer = serializers.CommentSerializer(comment)
-        return HttpResponse(serializer.data, status=status.HTTP_201_CREATED)
+        return HttpResponse(json.dumps(serializer.data), status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["put"], permission_classes=[AnswerQuestionOwner])
     def accept(self, request, pk):
@@ -223,4 +225,4 @@ class QuestionViewSet(
             owner=user_profile
         )
         serializer = serializers.CommentSerializer(comment)
-        return HttpResponse(serializer.data, status=status.HTTP_201_CREATED)
+        return HttpResponse(json.dumps(serializer.data), status=status.HTTP_201_CREATED)
