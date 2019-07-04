@@ -160,7 +160,7 @@ class QuestionViewSet(
         )
 
         serializer = serializers.AnswerSerializer(answer)
-        return HttpResponse(serializer.data, status=status.HTTP_201_CREATED)
+        return HttpResponse(json.dumps(serializer.data), status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
         # only the 'title', text', 'tags' can be updated
