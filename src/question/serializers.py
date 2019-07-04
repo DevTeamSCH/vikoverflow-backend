@@ -59,7 +59,7 @@ class AnswerSerializer(AbstractCommentSerializer):
 
 class QuestionSerializer(TaggitSerializer, AbstractCommentSerializer):
     comments = CommentSerializer(many=True)
-    answers = AnswerSerializer(many=True)
+    answers = serializers.SerializerMethodField()
     tags = TagListSerializerField()
 
     class Meta:
@@ -76,6 +76,9 @@ class QuestionSerializer(TaggitSerializer, AbstractCommentSerializer):
             "answers",
         )
         read_only_fields = ("created_at", "updated_at")
+
+    def get_answers(self, instance):
+        return AnswerSerializer(instance.answers.order_by('-is_accepted'), many=True).data
 
 
 class QuestionListSerializer(TaggitSerializer, AbstractCommentSerializer):
