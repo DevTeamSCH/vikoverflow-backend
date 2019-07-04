@@ -7,18 +7,17 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Ticket',
+            name="Ticket",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255)),
-                ('text', models.TextField()),
-                ('kind_of', models.CharField(choices=[('BUG', 'Bug'), ('FEATURE', 'Feature request')], max_length=255)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("title", models.CharField(max_length=255)),
+                ("text", models.TextField()),
+                ("kind_of", models.CharField(choices=[("BUG", "Bug"), ("FEATURE", "Feature request")], max_length=255)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
-        ),
+        )
     ]

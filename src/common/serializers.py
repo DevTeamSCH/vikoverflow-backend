@@ -11,8 +11,8 @@ class AbstractCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.AbstractComment
-        fields = ('text', 'owner', 'vote_count', 'user_vote')
-        read_only_fields = ('created_at', 'updated_at')
+        fields = ("text", "owner", "vote_count", "user_vote")
+        read_only_fields = ("created_at", "updated_at")
 
     def get_vote_count(self, obj):
         upvotes = obj.votes.upvoters.count()
@@ -21,19 +21,15 @@ class AbstractCommentSerializer(serializers.ModelSerializer):
 
     def get_user_vote(self, obj):
         try:
-            current = self.context['request'].user.username
-            if obj.votes.upvoters.filter(
-                    user__username=current
-            ).count() > 0:
-                return 'up'
-            elif obj.votes.downvoters.filter(
-                    user__username=current
-            ).count() > 0:
-                return 'down'
+            current = self.context["request"].user.username
+            if obj.votes.upvoters.filter(user__username=current).count() > 0:
+                return "up"
+            elif obj.votes.downvoters.filter(user__username=current).count() > 0:
+                return "down"
             else:
-                return 'none'
+                return "none"
         except KeyError:
-            return 'none'
+            return "none"
 
     def get_owner(self, obj):
         if obj.show_username is True:

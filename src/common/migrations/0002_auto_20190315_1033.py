@@ -5,19 +5,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('common', '0001_initial'),
-    ]
+    dependencies = [("common", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='votes',
-            name='downvoters',
-            field=models.ManyToManyField(null=True, related_name='downvotes', to='account.Profile'),
+            model_name="votes",
+            name="downvoters",
+            field=models.ManyToManyField(null=True, related_name="downvotes", to="account.Profile"),
         ),
         migrations.AlterField(
-            model_name='votes',
-            name='upvoters',
-            field=models.ManyToManyField(null=True, related_name='upvotes', to='account.Profile'),
+            model_name="votes",
+            name="upvoters",
+            field=models.ManyToManyField(null=True, related_name="upvotes", to="account.Profile"),
         ),
     ]

@@ -6,19 +6,29 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('question', '0006_auto_20190215_0755'),
-    ]
+    dependencies = [("question", "0006_auto_20190215_0755")]
 
     operations = [
         migrations.AlterField(
-            model_name='comment',
-            name='parent_answer',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='question.Answer'),
+            model_name="comment",
+            name="parent_answer",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="comments",
+                to="question.Answer",
+            ),
         ),
         migrations.AlterField(
-            model_name='comment',
-            name='parent_question',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='question.Question'),
+            model_name="comment",
+            name="parent_question",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="comments",
+                to="question.Question",
+            ),
         ),
     ]

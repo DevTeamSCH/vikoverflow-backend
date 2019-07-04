@@ -6,27 +6,24 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('account', '0001_initial'),
-        ('moderate', '0002_auto_20181126_2336'),
-    ]
+    dependencies = [("account", "0001_initial"), ("moderate", "0002_auto_20181126_2336")]
 
     operations = [
         migrations.CreateModel(
-            name='ReportComment',
+            name="ReportComment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('text', models.TextField()),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='account.Profile')),
-                ('report', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='moderate.Report')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("text", models.TextField()),
+                ("owner", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="account.Profile")),
+                (
+                    "report",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name="comments", to="moderate.Report"
+                    ),
+                ),
             ],
         ),
-        migrations.RemoveField(
-            model_name='moderatorcomment',
-            name='owner',
-        ),
-        migrations.DeleteModel(
-            name='ModeratorComment',
-        ),
+        migrations.RemoveField(model_name="moderatorcomment", name="owner"),
+        migrations.DeleteModel(name="ModeratorComment"),
     ]

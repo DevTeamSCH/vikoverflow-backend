@@ -6,14 +6,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('moderate', '0004_report_approved_by'),
-    ]
+    dependencies = [("moderate", "0004_report_approved_by")]
 
     operations = [
         migrations.AlterField(
-            model_name='report',
-            name='approved_by',
-            field=models.ManyToManyField(to=settings.AUTH_USER_MODEL),
-        ),
+            model_name="report", name="approved_by", field=models.ManyToManyField(to=settings.AUTH_USER_MODEL)
+        )
     ]

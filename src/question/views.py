@@ -17,7 +17,7 @@ from .permissions import (
     QuestionOwnerOrSafeMethodOrLoggedInCreate,
     AnswerOwnerCanModify,
     AnswerQuestionOwner,
-    QuestionOwnerOrStaffOrSafeMethod
+    QuestionOwnerOrStaffOrSafeMethod,
 )
 
 
@@ -46,8 +46,9 @@ def handle_vote(abstract_comment, request):
             downvoters.remove(user_profile)
     else:
         return bad_request
-    return HttpResponse(json.dumps({"user_vote": vote, "vote_count": upvoters.count() - downvoters.count()}),
-                        status=status.HTTP_200_OK)
+    return HttpResponse(
+        json.dumps({"user_vote": vote, "vote_count": upvoters.count() - downvoters.count()}), status=status.HTTP_200_OK
+    )
 
 
 class Votable(viewsets.GenericViewSet):
@@ -57,9 +58,7 @@ class Votable(viewsets.GenericViewSet):
         super().__init__(*args, **kwargs)
         self.queryset = self.model.objects.all()
 
-    @action(
-        detail=True, methods=["put"], permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(detail=True, methods=["put"], permission_classes=[permissions.IsAuthenticated])
     def vote(self, request, pk):
         abstract_comment = get_object_or_404(self.model, pk=pk)
         return handle_vote(abstract_comment, request)
@@ -73,21 +72,17 @@ class AnswerViewSet(mixins.UpdateModelMixin, mixins.DestroyModelMixin, Votable):
     def update(self, request, *args, **kwargs):
         return super(AnswerViewSet, self).update(request, *args, **kwargs, partial=True)
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def comments(self, request, pk):
         answer = get_object_or_404(self.model, pk=pk)
         user_profile = request.user.profile
         try:
-            text = request.data['text']
-            show_username = request.data['show_username']
+            text = request.data["text"]
+            show_username = request.data["show_username"]
         except KeyError:
-            return HttpResponseBadRequest('Text and show_username field cannot be empty!')
+            return HttpResponseBadRequest("Text and show_username field cannot be empty!")
         comment = models.Comment.objects.create(
-            text=text,
-            show_username=show_username,
-            votes=Votes.objects.create(),
-            parent_answer=answer,
-            owner=user_profile
+            text=text, show_username=show_username, votes=Votes.objects.create(), parent_answer=answer, owner=user_profile
         )
         serializer = serializers.CommentSerializer(comment)
         return HttpResponse(json.dumps(serializer.data), status=status.HTTP_201_CREATED)
@@ -110,11 +105,7 @@ class AnswerViewSet(mixins.UpdateModelMixin, mixins.DestroyModelMixin, Votable):
         return obj
 
 
-class CommentViewSet(
-        Votable,
-        mixins.DestroyModelMixin,
-        mixins.UpdateModelMixin
-):
+class CommentViewSet(Votable, mixins.DestroyModelMixin, mixins.UpdateModelMixin):
     model = models.Comment
     serializer_class = serializers.CommentSerializer
     permission_classes = [QuestionOwnerOrStaffOrSafeMethod]
@@ -137,9 +128,7 @@ class QuestionViewSet(
             return serializers.QuestionListSerializer
         return serializers.QuestionSerializer
 
-    @action(
-        detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def answers(self, request, pk):
         question = get_object_or_404(self.model, pk=pk)
 
@@ -199,31 +188,26 @@ class QuestionViewSet(
             return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
 
         question = models.Question.objects.create(
-            title=title,
-            text=text,
-            votes=Votes.objects.create(),
-            show_username=True,
-            owner=user_profile,
-            tags=tags,
+            title=title, text=text, votes=Votes.objects.create(), show_username=True, owner=user_profile, tags=tags
         )
         serializer = serializers.QuestionSerializer(question)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def comments(self, request, pk):
         question = get_object_or_404(self.model, pk=pk)
         user_profile = request.user.profile
         try:
-            text = request.data['text']
-            show_username = request.data['show_username']
+            text = request.data["text"]
+            show_username = request.data["show_username"]
         except KeyError:
-            return HttpResponseBadRequest('Text and show_username field cannot be empty!')
+            return HttpResponseBadRequest("Text and show_username field cannot be empty!")
         comment = models.Comment.objects.create(
             text=text,
             show_username=show_username,
             votes=Votes.objects.create(),
             parent_question=question,
-            owner=user_profile
+            owner=user_profile,
         )
         serializer = serializers.CommentSerializer(comment)
         return HttpResponse(json.dumps(serializer.data), status=status.HTTP_201_CREATED)

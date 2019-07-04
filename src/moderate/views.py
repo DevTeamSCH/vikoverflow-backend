@@ -17,7 +17,7 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
     serializer_class = ReportSerializer
     permission_classes = (IsAuthenticated, ReportViewSetPermission)
 
-    @action(detail=True, methods=['post'], permission_classes=(IsAdminUser, ))
+    @action(detail=True, methods=["post"], permission_classes=(IsAdminUser,))
     def approve(self, request, pk=None):
         report = self.get_object()
 
@@ -27,9 +27,7 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
         report.approved_by.add(request.user)
 
         ReportComment(
-            text=_("Report approved"),
-            owner=Profile.objects.get_or_create(user=request.user)[0],
-            report=report
+            text=_("Report approved"), owner=Profile.objects.get_or_create(user=request.user)[0], report=report
         ).save()
 
         if report.approved_by.count() >= 2:
@@ -39,7 +37,7 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
         report.save()
         return self.retrieve(request)
 
-    @action(detail=True, methods=['post'], permission_classes=(IsAdminUser, ))
+    @action(detail=True, methods=["post"], permission_classes=(IsAdminUser,))
     def reject(self, request, pk=None):
         report = self.get_object()
 
@@ -49,13 +47,11 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
         report.close()
         report.save()
         ReportComment(
-            text=_("Report rejected"),
-            owner=Profile.objects.get_or_create(user=request.user)[0],
-            report=report
+            text=_("Report rejected"), owner=Profile.objects.get_or_create(user=request.user)[0], report=report
         ).save()
         return self.retrieve(request)
 
-    @action(detail=True, methods=['post'], permission_classes=(IsSuperuser, ))
+    @action(detail=True, methods=["post"], permission_classes=(IsSuperuser,))
     def reopen(self, request, pk=None):
         report = self.get_object()
 
@@ -67,22 +63,16 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
         report.approved_by.clear()
         report.save()
         ReportComment(
-            text=_("Report reopened"),
-            owner=Profile.objects.get_or_create(user=request.user)[0],
-            report=report
+            text=_("Report reopened"), owner=Profile.objects.get_or_create(user=request.user)[0], report=report
         ).save()
         return self.retrieve(request)
 
-    @action(detail=True, methods=['post'], permission_classes=(IsAdminUser, ))
+    @action(detail=True, methods=["post"], permission_classes=(IsAdminUser,))
     def comment(self, request, pk=None):
         report = self.get_object()
-        comment_text = request.data.get('comment')
+        comment_text = request.data.get("comment")
         if comment_text is None:
             return HttpResponseBadRequest()
-        comment = ReportComment(
-            text=comment_text,
-            owner=Profile.objects.get_or_create(user=request.user)[0],
-            report=report
-        )
+        comment = ReportComment(text=comment_text, owner=Profile.objects.get_or_create(user=request.user)[0], report=report)
         comment.save()
         return self.retrieve(request)

@@ -5,21 +5,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('question', '0005_merge_20190215_0616'),
-    ]
+    dependencies = [("question", "0005_merge_20190215_0616")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='answer',
-            name='is_visible',
-        ),
-        migrations.RemoveField(
-            model_name='comment',
-            name='is_visible',
-        ),
-        migrations.RemoveField(
-            model_name='question',
-            name='is_visible',
-        ),
+        migrations.RemoveField(model_name="answer", name="is_visible"),
+        migrations.RemoveField(model_name="comment", name="is_visible"),
+        migrations.RemoveField(model_name="question", name="is_visible"),
     ]

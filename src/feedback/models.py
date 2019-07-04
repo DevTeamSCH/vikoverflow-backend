@@ -3,10 +3,7 @@ from django.utils.translation import gettext as _
 
 
 class Ticket(models.Model):
-    TICKET_TYPES = (
-        ('BUG', _('Bug')),
-        ('FEATURE', _('Feature request')),
-    )
+    TICKET_TYPES = (("BUG", _("Bug")), ("FEATURE", _("Feature request")))
 
     title = models.CharField(max_length=255)
     text = models.TextField()
