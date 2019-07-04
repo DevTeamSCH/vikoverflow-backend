@@ -78,7 +78,7 @@ class QuestionSerializer(TaggitSerializer, AbstractCommentSerializer):
         read_only_fields = ("created_at", "updated_at")
 
     def get_answers(self, instance):
-        return AnswerSerializer(instance.answers.order_by('-is_accepted'), many=True).data
+        return AnswerSerializer(instance.answers.order_by('-is_accepted'), many=True, context=self.context).data
 
 
 class QuestionListSerializer(TaggitSerializer, AbstractCommentSerializer):

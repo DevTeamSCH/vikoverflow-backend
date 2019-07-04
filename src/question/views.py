@@ -46,7 +46,8 @@ def handle_vote(abstract_comment, request):
             downvoters.remove(user_profile)
     else:
         return bad_request
-    return HttpResponse(status=status.HTTP_200_OK)
+    return HttpResponse(json.dumps({"user_vote": vote, "vote_count": upvoters.count() - downvoters.count()}),
+                        status=status.HTTP_200_OK)
 
 
 class Votable(viewsets.GenericViewSet):
