@@ -9,7 +9,13 @@ class Votes(models.Model):
     downvoters = models.ManyToManyField(Profile, related_name="downvotes")
 
     def comment_item_name(self):
-        return self.answer_comment_item or self.question_comment_item or self.comment_comment_item
+        if hasattr(self, "answer_comment_item"):
+            return self.answer_comment_item
+        if hasattr(self, "question_comment_item"):
+            return self.question_comment_item
+        if hasattr(self, "comment_comment_item"):
+            return self.comment_comment_item
+        return "Unknown"
 
     def __str__(self):
         return "".join([str(self.comment_item_name()), "'s votes"])
