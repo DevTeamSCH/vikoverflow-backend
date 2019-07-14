@@ -1,6 +1,6 @@
 import json
 
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins
 from rest_framework import permissions
@@ -46,9 +46,7 @@ def handle_vote(abstract_comment, request):
             downvoters.remove(user_profile)
     else:
         return bad_request
-    return HttpResponse(
-        json.dumps({"user_vote": vote, "vote_count": upvoters.count() - downvoters.count()}), status=status.HTTP_200_OK
-    )
+    return JsonResponse({"user_vote": vote, "vote_count": upvoters.count() - downvoters.count()})
 
 
 class Votable(viewsets.GenericViewSet):
@@ -85,7 +83,7 @@ class AnswerViewSet(mixins.UpdateModelMixin, mixins.DestroyModelMixin, Votable):
             text=text, show_username=show_username, votes=Votes.objects.create(), parent_answer=answer, owner=user_profile
         )
         serializer = serializers.CommentSerializer(comment)
-        return HttpResponse(json.dumps(serializer.data), status=status.HTTP_201_CREATED)
+        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["put"], permission_classes=[AnswerQuestionOwner])
     def accept(self, request, pk):
@@ -97,7 +95,7 @@ class AnswerViewSet(mixins.UpdateModelMixin, mixins.DestroyModelMixin, Votable):
         answer.is_accepted = accepted
         answer.save()
         serializer = serializers.AnswerSerializer(answer)
-        return HttpResponse(serializer.data, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data)
 
     def get_object(self):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
@@ -150,7 +148,7 @@ class QuestionViewSet(
         )
 
         serializer = serializers.AnswerSerializer(answer)
-        return HttpResponse(json.dumps(serializer.data), status=status.HTTP_201_CREATED)
+        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
         # only the 'title', text', 'tags' can be updated
@@ -191,7 +189,7 @@ class QuestionViewSet(
             title=title, text=text, votes=Votes.objects.create(), show_username=True, owner=user_profile, tags=tags
         )
         serializer = serializers.QuestionSerializer(question)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def comments(self, request, pk):
@@ -210,4 +208,4 @@ class QuestionViewSet(
             owner=user_profile,
         )
         serializer = serializers.CommentSerializer(comment)
-        return HttpResponse(json.dumps(serializer.data), status=status.HTTP_201_CREATED)
+        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
