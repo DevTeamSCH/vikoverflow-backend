@@ -162,8 +162,8 @@ class QuestionViewSet(
         return super(QuestionViewSet, self).update(request, partial=True)
 
     def create(self, request, *args, **kwargs):
-        # only the 'title', 'text', 'tags' can be posted
-        allowed_keys = ["title", "text", "tags"]
+        # only the 'title', 'text', 'show_username' can be posted
+        allowed_keys = ["title", "text", "show_username"]
         keys_to_delete = list()
 
         for key in request.data.keys():
@@ -178,12 +178,16 @@ class QuestionViewSet(
         try:
             title = request.data["title"]
             text = request.data["text"]
-            tags = request.data["tags"]
+            show_username = request.data["show_username"]
         except KeyError:
             return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
 
         question = models.Question.objects.create(
-            title=title, text=text, votes=Votes.objects.create(), show_username=True, owner=user_profile, tags=tags
+            title=title,
+            text=text,
+            votes=Votes.objects.create(),
+            show_username=show_username,
+            owner=user_profile
         )
         serializer = serializers.QuestionSerializer(question)
         return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)

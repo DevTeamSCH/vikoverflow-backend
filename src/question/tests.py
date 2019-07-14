@@ -457,15 +457,14 @@ class PostQuestionTestCase(APITestCase):
         submitter_user = User.objects.get(username="submitter")
         self.client.force_login(submitter_user)
 
-        data = {"title": "POST title", "text": "POST text", "tags": ["test", "post"]}
+        data = {"title": "POST title", "text": "POST text", "show_username": True}
 
         response = self.client.post(self.url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         question = Question.objects.get(title="POST title")
         self.assertEqual(question.text, data["text"])
-        for tag in question.tags.all():
-            self.assertTrue(tag.name in data["tags"])
+        self.assertEqual(question.show_username, data["show_username"])
 
         self.client.logout()
 
