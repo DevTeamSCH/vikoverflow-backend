@@ -13,16 +13,40 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="QuestionTag",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("name", models.CharField(max_length=100, unique=True, verbose_name="Name")),
-                ("slug", models.SlugField(max_length=100, unique=True, verbose_name="Slug")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=100, unique=True, verbose_name="Name"),
+                ),
+                (
+                    "slug",
+                    models.SlugField(max_length=100, unique=True, verbose_name="Slug"),
+                ),
                 ("deleted", models.UUIDField(blank=True, default=None, null=True)),
             ],
             options={"abstract": False},
         ),
         migrations.CreateModel(
             name="TaggedQuestion",
-            fields=[("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID"))],
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                )
+            ],
             options={"abstract": False},
         ),
         migrations.AlterField(
@@ -38,7 +62,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="taggedquestion",
             name="content_object",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="question.Question"),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="question.Question"
+            ),
         ),
         migrations.AddField(
             model_name="taggedquestion",

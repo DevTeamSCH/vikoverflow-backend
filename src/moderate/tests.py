@@ -12,15 +12,25 @@ from question.models import Question, Answer, Comment, QuestionTag
 
 @parameterized_class(
     ("model_name", "model_class"),
-    [("question", Question), ("answer", Answer), ("comment", Comment), ("profile", Profile), ("tag", QuestionTag)],
+    [
+        ("question", Question),
+        ("answer", Answer),
+        ("comment", Comment),
+        ("profile", Profile),
+        ("tag", QuestionTag),
+    ],
 )
 class ReportTestCase(APITestCase):
     base_url = "http://localhost:8000/api/v1/reports/"
 
     def setUp(self):
-        self.user = Profile.objects.create(user=User.objects.create(username="Test user"))
+        self.user = Profile.objects.create(
+            user=User.objects.create(username="Test user")
+        )
 
-        self.moderator = Profile.objects.create(user=User.objects.create(username="Moderator"))
+        self.moderator = Profile.objects.create(
+            user=User.objects.create(username="Moderator")
+        )
         self.moderator.user.is_staff = True
         self.moderator.user.save()
 
@@ -29,7 +39,12 @@ class ReportTestCase(APITestCase):
         self.admin.user.is_staff = True
         self.admin.user.save()
 
-        question = Question(title="Test question", owner=self.user, show_username=True, votes=Votes.objects.create())
+        question = Question(
+            title="Test question",
+            owner=self.user,
+            show_username=True,
+            votes=Votes.objects.create(),
+        )
         question.save()
         question.tags.add("test-tag")
 
@@ -43,7 +58,11 @@ class ReportTestCase(APITestCase):
         ).save()
 
         Comment(
-            text="Test comment", parent_question=question, owner=self.user, show_username=False, votes=Votes.objects.create()
+            text="Test comment",
+            parent_question=question,
+            owner=self.user,
+            show_username=False,
+            votes=Votes.objects.create(),
         ).save()
 
     # ------------------------------
@@ -65,7 +84,11 @@ class ReportTestCase(APITestCase):
     def create_report(self):
         response = self.client.post(
             self.base_url,
-            {"text": "Test report text", "object_type": self.model_name, "object_id": self.model_class.objects.first().pk},
+            {
+                "text": "Test report text",
+                "object_type": self.model_name,
+                "object_id": self.model_class.objects.first().pk,
+            },
         )
         return response.data["pk"]
 
@@ -79,7 +102,10 @@ class ReportTestCase(APITestCase):
         return self.client.post("".join([self.base_url, str(report_id), "/reopen/"]))
 
     def comment_report(self, report_id, comment_text=""):
-        return self.client.post("".join([self.base_url, str(report_id), "/comment/"]), {"comment": comment_text})
+        return self.client.post(
+            "".join([self.base_url, str(report_id), "/comment/"]),
+            {"comment": comment_text},
+        )
 
     # ------------------------------
     # Tests
@@ -89,7 +115,12 @@ class ReportTestCase(APITestCase):
         model_object = self.model_class.objects.first()
         self.client.force_login(self.user.user)
         response = self.client.post(
-            self.base_url, {"text": "Test report text", "object_type": self.model_name, "object_id": model_object.pk}
+            self.base_url,
+            {
+                "text": "Test report text",
+                "object_type": self.model_name,
+                "object_id": model_object.pk,
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -182,7 +213,11 @@ class ReportTestCase(APITestCase):
     def test_not_logged_in(self):
         response = self.client.post(
             self.base_url,
-            {"text": "Test report text", "object_type": self.model_name, "object_id": self.model_class.objects.first().pk},
+            {
+                "text": "Test report text",
+                "object_type": self.model_name,
+                "object_id": self.model_class.objects.first().pk,
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -254,7 +289,12 @@ class ReportTestCase(APITestCase):
         self.client.force_login(self.user.user)
 
         response = self.client.post(
-            self.base_url, {"text": "Test report text", "object_type": self.model_name, "object_id": 1}
+            self.base_url,
+            {
+                "text": "Test report text",
+                "object_type": self.model_name,
+                "object_id": 1,
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

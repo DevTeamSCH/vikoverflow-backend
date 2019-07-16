@@ -10,6 +10,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="report", name="approved_by", field=models.ManyToManyField(to=settings.AUTH_USER_MODEL)
+            model_name="report",
+            name="approved_by",
+            field=models.ManyToManyField(to=settings.AUTH_USER_MODEL),
         )
     ]

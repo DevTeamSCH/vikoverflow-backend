@@ -9,6 +9,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name="taggedquestion", name="deleted", field=models.UUIDField(blank=True, default=None, null=True)
+            model_name="taggedquestion",
+            name="deleted",
+            field=models.UUIDField(blank=True, default=None, null=True),
         )
     ]

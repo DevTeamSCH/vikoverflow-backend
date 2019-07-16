@@ -12,7 +12,9 @@ from moderate.permissions import ReportViewSetPermission, IsSuperuser
 from moderate.serializers import ReportSerializer
 
 
-class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, GenericViewSet):
+class ReportViewSet(
+    ListModelMixin, CreateModelMixin, RetrieveModelMixin, GenericViewSet
+):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
     permission_classes = (IsAuthenticated, ReportViewSetPermission)
@@ -21,13 +23,18 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
     def approve(self, request, pk=None):
         report = self.get_object()
 
-        if report.is_closed() or report.approved_by.filter(pk=request.user.pk).count() == 1:
+        if (
+            report.is_closed()
+            or report.approved_by.filter(pk=request.user.pk).count() == 1
+        ):
             raise ParseError()
 
         report.approved_by.add(request.user)
 
         ReportComment(
-            text=_("Report approved"), owner=Profile.objects.get_or_create(user=request.user)[0], report=report
+            text=_("Report approved"),
+            owner=Profile.objects.get_or_create(user=request.user)[0],
+            report=report,
         ).save()
 
         if report.approved_by.count() >= 2:
@@ -47,7 +54,9 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
         report.close()
         report.save()
         ReportComment(
-            text=_("Report rejected"), owner=Profile.objects.get_or_create(user=request.user)[0], report=report
+            text=_("Report rejected"),
+            owner=Profile.objects.get_or_create(user=request.user)[0],
+            report=report,
         ).save()
         return self.retrieve(request)
 
@@ -63,7 +72,9 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
         report.approved_by.clear()
         report.save()
         ReportComment(
-            text=_("Report reopened"), owner=Profile.objects.get_or_create(user=request.user)[0], report=report
+            text=_("Report reopened"),
+            owner=Profile.objects.get_or_create(user=request.user)[0],
+            report=report,
         ).save()
         return self.retrieve(request)
 
@@ -73,6 +84,10 @@ class ReportViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, Generi
         comment_text = request.data.get("comment")
         if comment_text is None:
             return HttpResponseBadRequest()
-        comment = ReportComment(text=comment_text, owner=Profile.objects.get_or_create(user=request.user)[0], report=report)
+        comment = ReportComment(
+            text=comment_text,
+            owner=Profile.objects.get_or_create(user=request.user)[0],
+            report=report,
+        )
         comment.save()
         return self.retrieve(request)

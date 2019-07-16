@@ -29,7 +29,9 @@ SECRET_KEY = YAML_SETTINGS.get("secret_key")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = YAML_SETTINGS.get("debug")
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = YAML_SETTINGS.get("allowed_hosts")
+
+ALLOWED_USERS = YAML_SETTINGS.get("allowed_users")
 
 
 # Application definition
@@ -60,6 +62,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "vikoverflow.middlewares.DeployUserLimitMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -104,7 +107,9 @@ DATABASES = {
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -112,7 +117,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 SOCIAL_AUTH_URL_NAMESPACE = "social"
 
-AUTHENTICATION_BACKENDS = ["authsch.authentication.AuthSCHOAuth2", "django.contrib.auth.backends.ModelBackend"]
+AUTHENTICATION_BACKENDS = [
+    "authsch.authentication.AuthSCHOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.social_details",

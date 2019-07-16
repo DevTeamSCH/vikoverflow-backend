@@ -9,12 +9,18 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name="answer", name="deleted", field=models.UUIDField(blank=True, default=None, null=True)
+            model_name="answer",
+            name="deleted",
+            field=models.UUIDField(blank=True, default=None, null=True),
         ),
         migrations.AddField(
-            model_name="comment", name="deleted", field=models.UUIDField(blank=True, default=None, null=True)
+            model_name="comment",
+            name="deleted",
+            field=models.UUIDField(blank=True, default=None, null=True),
         ),
         migrations.AddField(
-            model_name="question", name="deleted", field=models.UUIDField(blank=True, default=None, null=True)
+            model_name="question",
+            name="deleted",
+            field=models.UUIDField(blank=True, default=None, null=True),
         ),
     ]
