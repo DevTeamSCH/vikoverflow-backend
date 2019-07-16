@@ -29,7 +29,9 @@ SECRET_KEY = YAML_SETTINGS.get("secret_key")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = YAML_SETTINGS.get("debug")
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = YAML_SETTINGS.get("allowed_hosts")
+
+ALLOWED_USERS = YAML_SETTINGS.get("allowed_users")
 
 
 # Application definition
@@ -60,6 +62,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "vikoverflow.middlewares.DeployUserLimitMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]

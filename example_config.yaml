@@ -9,3 +9,5 @@ database:
   host: 'db'
   port: 5432
   name: 'postgres'
+allowed_users: ['*']
+allowed_hosts: ['*']
