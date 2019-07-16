@@ -29,7 +29,9 @@ class Command(BaseCommand):
         if owner in upvoters:
             upvoters.remove(owner)
         downvote_choices = [item for item in users if item not in upvoters]
-        downvoters = random.sample(downvote_choices, random.randint(0, len(downvote_choices)))
+        downvoters = random.sample(
+            downvote_choices, random.randint(0, len(downvote_choices))
+        )
         for u in upvoters:
             votes.upvoters.add(Profile.objects.get(user__username=u))
         for u in downvoters:
@@ -56,7 +58,9 @@ class Command(BaseCommand):
         users.append("admin")
 
         if not User.objects.filter(username="mod").exists():
-            User.objects.create(username="mod", is_staff=True, first_name="Mod", last_name="Mod")
+            User.objects.create(
+                username="mod", is_staff=True, first_name="Mod", last_name="Mod"
+            )
             Profile.objects.create(user=User.objects.get(username="mod"))
         users.append("mod")
 

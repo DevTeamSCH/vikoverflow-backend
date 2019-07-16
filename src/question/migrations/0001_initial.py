@@ -9,13 +9,25 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [("account", "__first__"), ("taggit", "0002_auto_20150616_2121"), ("common", "0001_initial")]
+    dependencies = [
+        ("account", "__first__"),
+        ("taggit", "0002_auto_20150616_2121"),
+        ("common", "0001_initial"),
+    ]
 
     operations = [
         migrations.CreateModel(
             name="Answer",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("show_username", models.BooleanField()),
@@ -35,7 +47,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Comment",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("show_username", models.BooleanField()),
@@ -51,7 +71,10 @@ class Migration(migrations.Migration):
                 (
                     "parent_answer",
                     models.ForeignKey(
-                        null=True, on_delete=django.db.models.deletion.CASCADE, related_name="comments", to="question.Answer"
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="comments",
+                        to="question.Answer",
                     ),
                 ),
             ],
@@ -60,13 +83,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Course",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("name", models.CharField(max_length=100, unique=True, verbose_name="Name")),
-                ("slug", models.SlugField(max_length=100, unique=True, verbose_name="Slug")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=100, unique=True, verbose_name="Name"),
+                ),
+                (
+                    "slug",
+                    models.SlugField(max_length=100, unique=True, verbose_name="Slug"),
+                ),
                 (
                     "teacher",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="courses", to="account.Profile"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="courses",
+                        to="account.Profile",
                     ),
                 ),
             ],
@@ -75,7 +114,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Question",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("show_username", models.BooleanField()),
@@ -101,7 +148,9 @@ class Migration(migrations.Migration):
                 (
                     "votes",
                     models.OneToOneField(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="question_comment_item", to="common.Votes"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="question_comment_item",
+                        to="common.Votes",
                     ),
                 ),
             ],
@@ -111,28 +160,37 @@ class Migration(migrations.Migration):
             model_name="comment",
             name="parent_question",
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.CASCADE, related_name="comments", to="question.Question"
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="comments",
+                to="question.Question",
             ),
         ),
         migrations.AddField(
             model_name="comment",
             name="votes",
             field=models.OneToOneField(
-                on_delete=django.db.models.deletion.CASCADE, related_name="comment_comment_item", to="common.Votes"
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="comment_comment_item",
+                to="common.Votes",
             ),
         ),
         migrations.AddField(
             model_name="answer",
             name="parent",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, related_name="answers", to="question.Question"
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="answers",
+                to="question.Question",
             ),
         ),
         migrations.AddField(
             model_name="answer",
             name="votes",
             field=models.OneToOneField(
-                on_delete=django.db.models.deletion.CASCADE, related_name="answer_comment_item", to="common.Votes"
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="answer_comment_item",
+                to="common.Votes",
             ),
         ),
     ]

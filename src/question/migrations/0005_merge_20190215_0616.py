@@ -5,6 +5,9 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [("question", "0002_auto_20190122_1919"), ("question", "0004_taggedquestion_deleted")]
+    dependencies = [
+        ("question", "0002_auto_20190122_1919"),
+        ("question", "0004_taggedquestion_deleted"),
+    ]
 
     operations = []

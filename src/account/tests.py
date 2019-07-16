@@ -16,15 +16,28 @@ class AccountsTests(APITestCase):
     def setUp(self):
         # Users
 
-        User.objects.create(username="admin", is_superuser=True, is_staff=True).set_password("adminpw")
-        User.objects.create(username="mod", is_superuser=False, is_staff=True).set_password("modpw")
-        User.objects.create(username="user", is_superuser=False, is_staff=False).set_password("userpw")
-        User.objects.create(username="other_user", is_superuser=False, is_staff=False).set_password("userpw")
+        User.objects.create(
+            username="admin", is_superuser=True, is_staff=True
+        ).set_password("adminpw")
+        User.objects.create(
+            username="mod", is_superuser=False, is_staff=True
+        ).set_password("modpw")
+        User.objects.create(
+            username="user", is_superuser=False, is_staff=False
+        ).set_password("userpw")
+        User.objects.create(
+            username="other_user", is_superuser=False, is_staff=False
+        ).set_password("userpw")
 
         # Profiles
 
         for user in User.objects.all():
-            Profile.objects.create(user=user, about_me=fake.paragraph(nb_sentences=4), is_score_visible=True, ranked=True)
+            Profile.objects.create(
+                user=user,
+                about_me=fake.paragraph(nb_sentences=4),
+                is_score_visible=True,
+                ranked=True,
+            )
 
     # -------------------------------------------------------------------------
     # LIST view
@@ -307,7 +320,9 @@ class AccountsTests(APITestCase):
         response = self.client.put(url, data, format="json")
 
         self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(user.is_active, User.objects.get(username=user.username).is_active)
+        self.assertEqual(
+            user.is_active, User.objects.get(username=user.username).is_active
+        )
 
         self.client.logout()
 
@@ -335,6 +350,8 @@ class AccountsTests(APITestCase):
         response = self.client.put(url, data, format="json")
 
         self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(user.is_staff, User.objects.get(username=user.username).is_staff)
+        self.assertEqual(
+            user.is_staff, User.objects.get(username=user.username).is_staff
+        )
 
         self.client.logout()

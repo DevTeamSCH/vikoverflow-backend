@@ -20,15 +20,21 @@ class VotingTestCase(APITestCase):
 
     def prepare(self):
         self.abstract_comment = self.model.objects.all()[0]
-        abstract_comment_url = "".join(["http://localhost:8000/api/v1/", self.url_name, "/"])
+        abstract_comment_url = "".join(
+            ["http://localhost:8000/api/v1/", self.url_name, "/"]
+        )
         self.upvoters = self.abstract_comment.votes.upvoters
         self.downvoters = self.abstract_comment.votes.downvoters
-        self.url = "".join([abstract_comment_url, str(self.abstract_comment.id), "/vote/"])
+        self.url = "".join(
+            [abstract_comment_url, str(self.abstract_comment.id), "/vote/"]
+        )
         self.voter = User.objects.get(username="voter")
 
     def setUp(self):
         # Users
-        submitter = Profile.objects.create(user=User.objects.create(username="submitter"))
+        submitter = Profile.objects.create(
+            user=User.objects.create(username="submitter")
+        )
         Profile.objects.create(user=User.objects.create(username="voter"))
         # Content
         question = Question.objects.create(
@@ -47,7 +53,11 @@ class VotingTestCase(APITestCase):
             is_accepted=False,
         )
         Comment.objects.create(
-            text="Apples suck.", votes=Votes.objects.create(), show_username=True, owner=submitter, parent_answer=answer
+            text="Apples suck.",
+            votes=Votes.objects.create(),
+            show_username=True,
+            owner=submitter,
+            parent_answer=answer,
         )
 
 
@@ -57,7 +67,9 @@ class OneVoterQuestion(VotingTestCase):
 
     def test_not_exist(self):
         self.prepare()
-        abstract_comment_url = "".join(["http://localhost:8000/api/v1/", self.url_name, "/"])
+        abstract_comment_url = "".join(
+            ["http://localhost:8000/api/v1/", self.url_name, "/"]
+        )
         self.url = "".join([abstract_comment_url, str(100), "/vote/"])
         self.client.force_login(self.voter)
         response = self.client.put(self.url, {"user_vote": "up"})
@@ -248,7 +260,9 @@ class AnswerQuestionTestCase(APITestCase):
 
     def setUp(self):
         # Users
-        submitter = Profile.objects.create(user=User.objects.create(username="submitter"))
+        submitter = Profile.objects.create(
+            user=User.objects.create(username="submitter")
+        )
         Profile.objects.create(user=User.objects.create(username="answerer"))
         # Content
         Question.objects.create(
@@ -280,7 +294,9 @@ class AnswerQuestionTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        new_answer = Answer.objects.filter(owner=Profile.objects.get(user=answerer_user))[0]
+        new_answer = Answer.objects.filter(
+            owner=Profile.objects.get(user=answerer_user)
+        )[0]
         self.assertEqual(new_answer.text, data["text"])
         self.assertEqual(new_answer.show_username, data["show_username"])
         self.assertEqual(new_answer.parent, Question.objects.get(title="What is love?"))
@@ -298,7 +314,9 @@ class AnswerQuestionTestCase(APITestCase):
 
         data_without_show_username = {"text": "No more"}
 
-        response = self.client.post(self.url, data=data_without_show_username, format="json")
+        response = self.client.post(
+            self.url, data=data_without_show_username, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -307,7 +325,9 @@ class DeleteQuestionTestCase(APITestCase):
 
     def setUp(self):
         # Users
-        submitter = Profile.objects.create(user=User.objects.create(username="submitter"))
+        submitter = Profile.objects.create(
+            user=User.objects.create(username="submitter")
+        )
         Profile.objects.create(user=User.objects.create(username="other_user"))
         # Content
         Question.objects.create(
@@ -354,7 +374,9 @@ class PutQuestionTestCase(APITestCase):
 
     def setUp(self):
         # Users
-        submitter = Profile.objects.create(user=User.objects.create(username="submitter"))
+        submitter = Profile.objects.create(
+            user=User.objects.create(username="submitter")
+        )
         Profile.objects.create(user=User.objects.create(username="other_user"))
         # Content
         Question.objects.create(
@@ -410,7 +432,12 @@ class PutQuestionTestCase(APITestCase):
         submitter_user = User.objects.get(username="submitter")
         self.client.force_login(submitter_user)
 
-        data = {"title": "Test title", "text": "Test text", "tags": ["test", "put"], "show_username": False}
+        data = {
+            "title": "Test title",
+            "text": "Test text",
+            "tags": ["test", "put"],
+            "show_username": False,
+        }
 
         response = self.client.put(self.url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -431,7 +458,9 @@ class PostQuestionTestCase(APITestCase):
 
     def setUp(self):
         # Users
-        submitter = Profile.objects.create(user=User.objects.create(username="submitter"))
+        submitter = Profile.objects.create(
+            user=User.objects.create(username="submitter")
+        )
         Profile.objects.create(user=User.objects.create(username="other_user"))
         # Content
         Question.objects.create(
@@ -472,14 +501,18 @@ class PostQuestionTestCase(APITestCase):
 class EditAnswerTestCase(APITestCase):
     def setUp(self):
         # Users
-        submitter = Profile.objects.create(user=User.objects.create(username="submitter"))
+        submitter = Profile.objects.create(
+            user=User.objects.create(username="submitter")
+        )
 
         Profile.objects.create(user=User.objects.create(username="other_user"))
 
         # Content
         question = Question.objects.create(
             title="What does the fox say?",
-            text="But there's one sound\n" + "That no one knows\n" + "What does the fox say?",
+            text="But there's one sound\n"
+            + "That no one knows\n"
+            + "What does the fox say?",
             votes=Votes.objects.create(),
             show_username=True,
             owner=submitter,
@@ -542,16 +575,24 @@ class EditAnswerTestCase(APITestCase):
 class AcceptAnswerTestCase(APITestCase):
     def setUp(self):
         # Users
-        question_submitter = Profile.objects.create(user=User.objects.create(username="question_submitter"))
+        question_submitter = Profile.objects.create(
+            user=User.objects.create(username="question_submitter")
+        )
 
-        answer_submitter_0 = Profile.objects.create(user=User.objects.create(username="answer_submitter_0"))
+        answer_submitter_0 = Profile.objects.create(
+            user=User.objects.create(username="answer_submitter_0")
+        )
 
-        answer_submitter_1 = Profile.objects.create(user=User.objects.create(username="answer_submitter_1"))
+        answer_submitter_1 = Profile.objects.create(
+            user=User.objects.create(username="answer_submitter_1")
+        )
 
         # Content
         question = Question.objects.create(
             title="What does the fox say?",
-            text="But there's one sound\n" + "That no one knows\n" + "What does the fox say?",
+            text="But there's one sound\n"
+            + "That no one knows\n"
+            + "What does the fox say?",
             votes=Votes.objects.create(),
             show_username=True,
             owner=question_submitter,
@@ -679,16 +720,24 @@ class AcceptAnswerTestCase(APITestCase):
 class DeleteAnswerTestCase(APITestCase):
     def setUp(self):
         # Users
-        question_submitter = Profile.objects.create(user=User.objects.create(username="question_submitter"))
+        question_submitter = Profile.objects.create(
+            user=User.objects.create(username="question_submitter")
+        )
 
-        answer_submitter_0 = Profile.objects.create(user=User.objects.create(username="answer_submitter_0"))
+        answer_submitter_0 = Profile.objects.create(
+            user=User.objects.create(username="answer_submitter_0")
+        )
 
-        answer_submitter_1 = Profile.objects.create(user=User.objects.create(username="answer_submitter_1"))
+        answer_submitter_1 = Profile.objects.create(
+            user=User.objects.create(username="answer_submitter_1")
+        )
 
         # Content
         question = Question.objects.create(
             title="What does the fox say?",
-            text="But there's one sound\n" + "That no one knows\n" + "What does the fox say?",
+            text="But there's one sound\n"
+            + "That no one knows\n"
+            + "What does the fox say?",
             votes=Votes.objects.create(),
             show_username=True,
             owner=question_submitter,

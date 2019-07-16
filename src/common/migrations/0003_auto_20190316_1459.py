@@ -11,9 +11,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="votes",
             name="downvoters",
-            field=models.ManyToManyField(related_name="downvotes", to="account.Profile"),
+            field=models.ManyToManyField(
+                related_name="downvotes", to="account.Profile"
+            ),
         ),
         migrations.AlterField(
-            model_name="votes", name="upvoters", field=models.ManyToManyField(related_name="upvotes", to="account.Profile")
+            model_name="votes",
+            name="upvoters",
+            field=models.ManyToManyField(related_name="upvotes", to="account.Profile"),
         ),
     ]

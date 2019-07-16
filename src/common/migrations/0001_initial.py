@@ -13,9 +13,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Votes",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("downvoters", models.ManyToManyField(related_name="downvotes", to="account.Profile")),
-                ("upvoters", models.ManyToManyField(related_name="upvotes", to="account.Profile")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "downvoters",
+                    models.ManyToManyField(
+                        related_name="downvotes", to="account.Profile"
+                    ),
+                ),
+                (
+                    "upvoters",
+                    models.ManyToManyField(
+                        related_name="upvotes", to="account.Profile"
+                    ),
+                ),
             ],
         )
     ]

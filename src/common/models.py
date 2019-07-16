@@ -26,8 +26,14 @@ class AbstractComment(SoftDeleteModel):
     updated_at = models.DateTimeField(auto_now=True)
     show_username = models.BooleanField()
     text = models.TextField()
-    votes = models.OneToOneField(Votes, related_name="%(class)s_comment_item", on_delete=models.CASCADE)
-    owner = models.ForeignKey(Profile, related_name="%(app_label)s_%(class)s_comments", on_delete=models.CASCADE)
+    votes = models.OneToOneField(
+        Votes, related_name="%(class)s_comment_item", on_delete=models.CASCADE
+    )
+    owner = models.ForeignKey(
+        Profile,
+        related_name="%(app_label)s_%(class)s_comments",
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         abstract = True

@@ -15,7 +15,14 @@ class OwnProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("username", "email", "first_name", "last_name", "is_staff", "is_active")
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "is_staff",
+            "is_active",
+        )
         extra_kwargs = {"username": {"validators": [UnicodeUsernameValidator()]}}
 
 
@@ -90,7 +97,10 @@ class ProfileSerializerBasicAccount(serializers.ModelSerializer):
         user.first_name = user_data.pop("first_name")
         user.last_name = user_data.pop("last_name")
 
-        if user_data.pop("is_staff") != user.is_staff or user_data.pop("is_active") != user.is_active:
+        if (
+            user_data.pop("is_staff") != user.is_staff
+            or user_data.pop("is_active") != user.is_active
+        ):
             raise exceptions.PermissionDenied
 
         user.save()

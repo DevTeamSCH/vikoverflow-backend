@@ -8,7 +8,19 @@ class Migration(migrations.Migration):
     dependencies = [("question", "0001_initial")]
 
     operations = [
-        migrations.AddField(model_name="answer", name="is_visible", field=models.BooleanField(default=True)),
-        migrations.AddField(model_name="comment", name="is_visible", field=models.BooleanField(default=True)),
-        migrations.AddField(model_name="question", name="is_visible", field=models.BooleanField(default=True)),
+        migrations.AddField(
+            model_name="answer",
+            name="is_visible",
+            field=models.BooleanField(default=True),
+        ),
+        migrations.AddField(
+            model_name="comment",
+            name="is_visible",
+            field=models.BooleanField(default=True),
+        ),
+        migrations.AddField(
+            model_name="question",
+            name="is_visible",
+            field=models.BooleanField(default=True),
+        ),
     ]

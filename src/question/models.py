@@ -12,7 +12,11 @@ class QuestionTag(TagBase, SoftDeleteModel):
 
 
 class TaggedQuestion(ItemBase, SoftDeleteModel):
-    tag = models.ForeignKey(QuestionTag, related_name="%(app_label)s_%(class)s_items", on_delete=models.CASCADE)
+    tag = models.ForeignKey(
+        QuestionTag,
+        related_name="%(app_label)s_%(class)s_items",
+        on_delete=models.CASCADE,
+    )
     content_object = models.ForeignKey("Question", on_delete=models.CASCADE)
 
     @classmethod
@@ -35,15 +39,25 @@ class Question(AbstractComment):
 
 class Answer(AbstractComment):
     is_accepted = models.BooleanField()
-    parent = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers", null=False)
+    parent = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="answers", null=False
+    )
 
 
 class Comment(AbstractComment):
     parent_answer = models.ForeignKey(
-        "question.Answer", on_delete=models.CASCADE, related_name="comments", null=True, blank=True
+        "question.Answer",
+        on_delete=models.CASCADE,
+        related_name="comments",
+        null=True,
+        blank=True,
     )
     parent_question = models.ForeignKey(
-        "question.Question", on_delete=models.CASCADE, related_name="comments", null=True, blank=True
+        "question.Question",
+        on_delete=models.CASCADE,
+        related_name="comments",
+        null=True,
+        blank=True,
     )
 
     @property
@@ -53,4 +67,6 @@ class Comment(AbstractComment):
 
 # TODO: It may need a middle class: https://django-taggit.readthedocs.io/en/latest/custom_tagging.html#custom-tag
 class Course(TagBase):
-    teacher = models.ForeignKey(Profile, related_name="courses", on_delete=models.CASCADE)
+    teacher = models.ForeignKey(
+        Profile, related_name="courses", on_delete=models.CASCADE
+    )

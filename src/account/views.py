@@ -10,7 +10,12 @@ from . import models
 from . import serializers
 
 
-class ProfileViewSet(RelativeURLFieldMixin, generics.ListAPIView, generics.RetrieveUpdateAPIView, viewsets.GenericViewSet):
+class ProfileViewSet(
+    RelativeURLFieldMixin,
+    generics.ListAPIView,
+    generics.RetrieveUpdateAPIView,
+    viewsets.GenericViewSet,
+):
     queryset = models.Profile.objects.all()
     serializer_class = serializers.ProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsSafeMethodOrIsOwnOrIsAdmin]
@@ -46,7 +51,9 @@ class ProfileViewSet(RelativeURLFieldMixin, generics.ListAPIView, generics.Retri
         return Response(serializer.data)
 
 
-class AvatarViewSet(RelativeURLFieldMixin, generics.RetrieveUpdateAPIView, viewsets.GenericViewSet):
+class AvatarViewSet(
+    RelativeURLFieldMixin, generics.RetrieveUpdateAPIView, viewsets.GenericViewSet
+):
     queryset = models.Profile.objects.all()
     serializer_class = serializers.AvatarSerializer
     permission_classes = [permissions.IsAuthenticated, IsSafeMethodOrIsOwnOrIsAdmin]

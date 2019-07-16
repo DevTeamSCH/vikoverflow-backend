@@ -13,7 +13,9 @@ class TicketListTest(APITestCase):
     def setUp(self):
 
         # Users
-        User.objects.create(username="admin", is_superuser=True, is_staff=True).set_password("adminpass")
+        User.objects.create(
+            username="admin", is_superuser=True, is_staff=True
+        ).set_password("adminpass")
         User.objects.create(username="mod", is_staff=True).set_password("modpass")
         User.objects.create(username="csicska").set_password("csicskapass")
 
@@ -65,7 +67,11 @@ class TicketListTest(APITestCase):
         self.client.force_login(User.objects.get(username="csicska"))
         object_count = Ticket.objects.count()
         url = reverse("ticket-list")
-        data = {"title": fake.text(max_nb_chars=50), "text": fake.paragraph(nb_sentences=4), "kind_of": "BUG"}
+        data = {
+            "title": fake.text(max_nb_chars=50),
+            "text": fake.paragraph(nb_sentences=4),
+            "kind_of": "BUG",
+        }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Ticket.objects.count(), object_count + 1)
@@ -75,7 +81,11 @@ class TicketListTest(APITestCase):
         self.client.force_login(User.objects.get(username="admin"))
         object_count = Ticket.objects.count()
         url = reverse("ticket-list")
-        data = {"title": fake.text(max_nb_chars=50), "text": fake.paragraph(nb_sentences=4), "kind_of": "FEATURE"}
+        data = {
+            "title": fake.text(max_nb_chars=50),
+            "text": fake.paragraph(nb_sentences=4),
+            "kind_of": "FEATURE",
+        }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Ticket.objects.count(), object_count + 1)
@@ -85,7 +95,11 @@ class TicketListTest(APITestCase):
         self.client.force_login(User.objects.get(username="mod"))
         object_count = Ticket.objects.count()
         url = reverse("ticket-list")
-        data = {"title": fake.text(max_nb_chars=50), "text": fake.paragraph(nb_sentences=4), "kind_of": "FEATURE"}
+        data = {
+            "title": fake.text(max_nb_chars=50),
+            "text": fake.paragraph(nb_sentences=4),
+            "kind_of": "FEATURE",
+        }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Ticket.objects.count(), object_count + 1)
@@ -93,14 +107,22 @@ class TicketListTest(APITestCase):
 
     def test_post_no_login(self):
         url = reverse("ticket-list")
-        data = {"title": fake.text(max_nb_chars=50), "text": fake.paragraph(nb_sentences=4), "kind_of": "BUG"}
+        data = {
+            "title": fake.text(max_nb_chars=50),
+            "text": fake.paragraph(nb_sentences=4),
+            "kind_of": "BUG",
+        }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_admin_nonsense(self):
         self.client.force_login(User.objects.get(username="admin"))
         url = reverse("ticket-list")
-        data = {"title": fake.text(max_nb_chars=50), "text": fake.paragraph(nb_sentences=4), "kind_of": "FAKE TYPE"}
+        data = {
+            "title": fake.text(max_nb_chars=50),
+            "text": fake.paragraph(nb_sentences=4),
+            "kind_of": "FAKE TYPE",
+        }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.client.logout()

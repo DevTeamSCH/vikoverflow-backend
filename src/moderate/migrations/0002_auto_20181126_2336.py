@@ -8,10 +8,16 @@ class Migration(migrations.Migration):
     dependencies = [("moderate", "0001_initial")]
 
     operations = [
-        migrations.AlterField(model_name="report", name="closed_at", field=models.DateTimeField(null=True)),
+        migrations.AlterField(
+            model_name="report", name="closed_at", field=models.DateTimeField(null=True)
+        ),
         migrations.AlterField(
             model_name="report",
             name="status",
-            field=models.CharField(choices=[("OPENED", "Opened"), ("CLOSED", "Closed")], default="OPENED", max_length=255),
+            field=models.CharField(
+                choices=[("OPENED", "Opened"), ("CLOSED", "Closed")],
+                default="OPENED",
+                max_length=255,
+            ),
         ),
     ]
