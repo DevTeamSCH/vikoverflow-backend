@@ -5,14 +5,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('question', '0003_auto_20190131_2147'),
-    ]
+    dependencies = [("question", "0003_auto_20190131_2147")]
 
     operations = [
         migrations.AddField(
-            model_name='taggedquestion',
-            name='deleted',
-            field=models.UUIDField(blank=True, default=None, null=True),
-        ),
+            model_name="taggedquestion", name="deleted", field=models.UUIDField(blank=True, default=None, null=True)
+        )
     ]

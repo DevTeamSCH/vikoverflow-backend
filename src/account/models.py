@@ -4,8 +4,8 @@ from soft_delete_it.models import SoftDeleteModel
 
 
 class Profile(SoftDeleteModel):
-    user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
-    avatar = models.ImageField(default='default.jpg')
+    user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE)
+    avatar = models.ImageField(default="default.jpg")
     about_me = models.TextField(blank=True)
     is_score_visible = models.BooleanField(default=False)
     ranked = models.BooleanField(default=False)

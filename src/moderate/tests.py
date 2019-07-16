@@ -10,34 +10,26 @@ from moderate.serializers import ReportSerializer
 from question.models import Question, Answer, Comment, QuestionTag
 
 
-@parameterized_class(('model_name', 'model_class'), [
-    ('question', Question),
-    ('answer', Answer),
-    ('comment', Comment),
-    ('profile', Profile),
-    ('tag', QuestionTag),
-])
+@parameterized_class(
+    ("model_name", "model_class"),
+    [("question", Question), ("answer", Answer), ("comment", Comment), ("profile", Profile), ("tag", QuestionTag)],
+)
 class ReportTestCase(APITestCase):
     base_url = "http://localhost:8000/api/v1/reports/"
 
     def setUp(self):
-        self.user = Profile.objects.create(user=User.objects.create(username='Test user'))
+        self.user = Profile.objects.create(user=User.objects.create(username="Test user"))
 
-        self.moderator = Profile.objects.create(user=User.objects.create(username='Moderator'))
+        self.moderator = Profile.objects.create(user=User.objects.create(username="Moderator"))
         self.moderator.user.is_staff = True
         self.moderator.user.save()
 
-        self.admin = Profile.objects.create(user=User.objects.create(username='Admin'))
+        self.admin = Profile.objects.create(user=User.objects.create(username="Admin"))
         self.admin.user.is_superuser = True
         self.admin.user.is_staff = True
         self.admin.user.save()
 
-        question = Question(
-            title="Test question",
-            owner=self.user,
-            show_username=True,
-            votes=Votes.objects.create()
-        )
+        question = Question(title="Test question", owner=self.user, show_username=True, votes=Votes.objects.create())
         question.save()
         question.tags.add("test-tag")
 
@@ -47,15 +39,11 @@ class ReportTestCase(APITestCase):
             owner=self.user,
             show_username=False,
             votes=Votes.objects.create(),
-            is_accepted=False
+            is_accepted=False,
         ).save()
 
         Comment(
-            text="Test comment",
-            parent_question=question,
-            owner=self.user,
-            show_username=False,
-            votes=Votes.objects.create()
+            text="Test comment", parent_question=question, owner=self.user, show_username=False, votes=Votes.objects.create()
         ).save()
 
     # ------------------------------
@@ -64,35 +52,34 @@ class ReportTestCase(APITestCase):
 
     def assertObjectVisible(self):
         count = 1
-        if self.model_name == 'profile':
+        if self.model_name == "profile":
             count = 3
         self.assertEqual(self.model_class.objects.count(), count)
 
     def assertObjectHidden(self):
         count = 0
-        if self.model_name == 'profile':
+        if self.model_name == "profile":
             count = 2
         self.assertEqual(self.model_class.objects.count(), count)
 
     def create_report(self):
-        response = self.client.post(self.base_url, {
-            "text": "Test report text",
-            "object_type": self.model_name,
-            "object_id": self.model_class.objects.first().pk
-        })
-        return response.data['pk']
+        response = self.client.post(
+            self.base_url,
+            {"text": "Test report text", "object_type": self.model_name, "object_id": self.model_class.objects.first().pk},
+        )
+        return response.data["pk"]
 
     def approve_report(self, report_id):
-        return self.client.post(''.join([self.base_url, str(report_id), '/approve/']))
+        return self.client.post("".join([self.base_url, str(report_id), "/approve/"]))
 
     def reject_report(self, report_id):
-        return self.client.post(''.join([self.base_url, str(report_id), '/reject/']))
+        return self.client.post("".join([self.base_url, str(report_id), "/reject/"]))
 
     def reopen_report(self, report_id):
-        return self.client.post(''.join([self.base_url, str(report_id), '/reopen/']))
+        return self.client.post("".join([self.base_url, str(report_id), "/reopen/"]))
 
     def comment_report(self, report_id, comment_text=""):
-        return self.client.post(''.join([self.base_url, str(report_id), "/comment/"]), {'comment': comment_text})
+        return self.client.post("".join([self.base_url, str(report_id), "/comment/"]), {"comment": comment_text})
 
     # ------------------------------
     # Tests
@@ -101,13 +88,12 @@ class ReportTestCase(APITestCase):
     def test_create_report(self):
         model_object = self.model_class.objects.first()
         self.client.force_login(self.user.user)
-        response = self.client.post(self.base_url, {
-            "text": "Test report text",
-            "object_type": self.model_name,
-            "object_id": model_object.pk})
+        response = self.client.post(
+            self.base_url, {"text": "Test report text", "object_type": self.model_name, "object_id": model_object.pk}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        report = Report.objects.get(pk=response.data['pk'])
+        report = Report.objects.get(pk=response.data["pk"])
         self.assertEqual(report.content_object, model_object)
         self.assertEqual(response.data, ReportSerializer(report).data)
 
@@ -194,11 +180,10 @@ class ReportTestCase(APITestCase):
     # -------------------------------
 
     def test_not_logged_in(self):
-        response = self.client.post(self.base_url, {
-            "text": "Test report text",
-            "object_type": self.model_name,
-            "object_id": self.model_class.objects.first().pk
-        })
+        response = self.client.post(
+            self.base_url,
+            {"text": "Test report text", "object_type": self.model_name, "object_id": self.model_class.objects.first().pk},
+        )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Report.objects.count(), 0)
@@ -242,7 +227,7 @@ class ReportTestCase(APITestCase):
         response = self.comment_report(1)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        response = self.client.get(''.join([self.base_url, "1/"]))
+        response = self.client.get("".join([self.base_url, "1/"]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_accept_closed(self):
@@ -268,11 +253,9 @@ class ReportTestCase(APITestCase):
     def test_report_nonexistent(self):
         self.client.force_login(self.user.user)
 
-        response = self.client.post(self.base_url, {
-            "text": "Test report text",
-            "object_type": self.model_name,
-            "object_id": 1
-        })
+        response = self.client.post(
+            self.base_url, {"text": "Test report text", "object_type": self.model_name, "object_id": 1}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

@@ -7,17 +7,15 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('account', '__first__'),
-    ]
+    dependencies = [("account", "__first__")]
 
     operations = [
         migrations.CreateModel(
-            name='Votes',
+            name="Votes",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('downvoters', models.ManyToManyField(related_name='downvotes', to='account.Profile')),
-                ('upvoters', models.ManyToManyField(related_name='upvotes', to='account.Profile')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("downvoters", models.ManyToManyField(related_name="downvotes", to="account.Profile")),
+                ("upvoters", models.ManyToManyField(related_name="upvotes", to="account.Profile")),
             ],
-        ),
+        )
     ]

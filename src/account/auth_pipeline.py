@@ -4,7 +4,7 @@ from . import models
 
 
 def create_profile(backend, user, response, *args, **kwargs):
-    if backend.name == 'authsch':
+    if backend.name == "authsch":
         try:
             user.profile
         except exceptions.ObjectDoesNotExist:

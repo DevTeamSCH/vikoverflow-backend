@@ -7,45 +7,46 @@ import taggit.managers
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('question', '0002_auto_20190131_2055'),
-    ]
+    dependencies = [("question", "0002_auto_20190131_2055")]
 
     operations = [
         migrations.CreateModel(
-            name='QuestionTag',
+            name="QuestionTag",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True, verbose_name='Name')),
-                ('slug', models.SlugField(max_length=100, unique=True, verbose_name='Slug')),
-                ('deleted', models.UUIDField(blank=True, default=None, null=True)),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("name", models.CharField(max_length=100, unique=True, verbose_name="Name")),
+                ("slug", models.SlugField(max_length=100, unique=True, verbose_name="Slug")),
+                ("deleted", models.UUIDField(blank=True, default=None, null=True)),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
-            name='TaggedQuestion',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-            ],
-            options={
-                'abstract': False,
-            },
+            name="TaggedQuestion",
+            fields=[("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID"))],
+            options={"abstract": False},
         ),
         migrations.AlterField(
-            model_name='question',
-            name='tags',
-            field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='question.TaggedQuestion', to='question.QuestionTag', verbose_name='Tags'),
+            model_name="question",
+            name="tags",
+            field=taggit.managers.TaggableManager(
+                help_text="A comma-separated list of tags.",
+                through="question.TaggedQuestion",
+                to="question.QuestionTag",
+                verbose_name="Tags",
+            ),
         ),
         migrations.AddField(
-            model_name='taggedquestion',
-            name='content_object',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='question.Question'),
+            model_name="taggedquestion",
+            name="content_object",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="question.Question"),
         ),
         migrations.AddField(
-            model_name='taggedquestion',
-            name='tag',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='question_taggedquestion_items', to='question.QuestionTag'),
+            model_name="taggedquestion",
+            name="tag",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="question_taggedquestion_items",
+                to="question.QuestionTag",
+            ),
         ),
     ]

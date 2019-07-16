@@ -15,72 +15,63 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--flush',
-            action='store_true',
-            dest='flush',
-            help='Empty the database before adding the fake data (WARNING: This will delete all data in the database!)',
+            "--flush",
+            action="store_true",
+            dest="flush",
+            help="Empty the database before adding the fake data (WARNING: This will delete all data in the database!)",
         )
 
     def generate_owner_votes(self, users):
         owner = random.choice(users)
         votes = Votes()
         votes.save()
-        upvoters = random.sample(
-            users,
-            random.randint(0, len(users))
-        )
+        upvoters = random.sample(users, random.randint(0, len(users)))
         if owner in upvoters:
             upvoters.remove(owner)
         downvote_choices = [item for item in users if item not in upvoters]
-        downvoters = random.sample(
-            downvote_choices,
-            random.randint(0, len(downvote_choices))
-        )
+        downvoters = random.sample(downvote_choices, random.randint(0, len(downvote_choices)))
         for u in upvoters:
             votes.upvoters.add(Profile.objects.get(user__username=u))
         for u in downvoters:
             votes.downvoters.add(Profile.objects.get(user__username=u))
-        return {
-            'owner': owner,
-            'votes': votes
-        }
+        return {"owner": owner, "votes": votes}
 
     def handle(self, *args, **options):
-        if options['flush']:
-            call_command('flush', '--noinput')
+        if options["flush"]:
+            call_command("flush", "--noinput")
 
-        fake = Faker('hu_HU')
+        fake = Faker("hu_HU")
         users = []
 
-        if not User.objects.filter(username='admin').exists():
+        if not User.objects.filter(username="admin").exists():
             admin = User()
-            admin.username = 'admin'
+            admin.username = "admin"
             admin.is_superuser = True
             admin.is_staff = True
-            admin.first_name = 'Admin'
-            admin.last_name = 'Adminsson'
-            admin.set_password('admin')
+            admin.first_name = "Admin"
+            admin.last_name = "Adminsson"
+            admin.set_password("admin")
             admin.save()
-            Profile.objects.create(user=User.objects.get(username='admin'))
-        users.append('admin')
+            Profile.objects.create(user=User.objects.get(username="admin"))
+        users.append("admin")
 
-        if not User.objects.filter(username='mod').exists():
-            User.objects.create(username='mod', is_staff=True, first_name='Mod', last_name='Mod')
-            Profile.objects.create(user=User.objects.get(username='mod'))
-        users.append('mod')
+        if not User.objects.filter(username="mod").exists():
+            User.objects.create(username="mod", is_staff=True, first_name="Mod", last_name="Mod")
+            Profile.objects.create(user=User.objects.get(username="mod"))
+        users.append("mod")
 
-        if not User.objects.filter(username='user').exists():
-            User.objects.create(username='user', first_name='User', last_name='User')
-            Profile.objects.create(user=User.objects.get(username='user'))
-        users.append('user')
+        if not User.objects.filter(username="user").exists():
+            User.objects.create(username="user", first_name="User", last_name="User")
+            Profile.objects.create(user=User.objects.get(username="user"))
+        users.append("user")
 
         # Accounts
         for i in range(random.choice(range(3, 9))):
             # Users
             fakedata = fake.simple_profile()
             u = User()
-            u.username = fakedata['username']
-            name = fakedata['name'].split(' ')
+            u.username = fakedata["username"]
+            name = fakedata["name"].split(" ")
             u.first_name = name[0]
             u.last_name = name[1]
             u.save()
@@ -99,9 +90,9 @@ class Command(BaseCommand):
             q = Question()
             q.title = fake.text(max_nb_chars=50)
             q.text = fake.paragraph(nb_sentences=4)
-            q.owner = Profile.objects.get(user__username=ov_q['owner'])
+            q.owner = Profile.objects.get(user__username=ov_q["owner"])
             q.show_username = bool(random.getrandbits(1))
-            q.votes = ov_q['votes']
+            q.votes = ov_q["votes"]
             q.created_at = datetime.datetime.now()
             q.save()
             for t in random.sample(tag_choices, random.randint(0, len(tag_choices))):
@@ -112,9 +103,9 @@ class Command(BaseCommand):
                 Comment.objects.create(
                     parent_question=q,
                     text=fake.paragraph(nb_sentences=4),
-                    owner=Profile.objects.get(user__username=ov_cq['owner']),
+                    owner=Profile.objects.get(user__username=ov_cq["owner"]),
                     show_username=bool(random.getrandbits(1)),
-                    votes=ov_cq['votes']
+                    votes=ov_cq["votes"],
                 )
             # Answers
             accepted_answer = -1
@@ -126,13 +117,13 @@ class Command(BaseCommand):
                 ov_a = self.generate_owner_votes(users)
                 a = Answer()
                 a.text = fake.paragraph(nb_sentences=4)
-                a.owner = Profile.objects.get(user__username=ov_a['owner'])
+                a.owner = Profile.objects.get(user__username=ov_a["owner"])
                 a.show_username = bool(random.getrandbits(1))
                 if k == accepted_answer:
                     a.is_accepted = True
                 else:
                     a.is_accepted = False
-                a.votes = ov_a['votes']
+                a.votes = ov_a["votes"]
                 a.parent = q
                 a.save()
                 # Comments to answers
@@ -141,7 +132,7 @@ class Command(BaseCommand):
                     Comment.objects.create(
                         parent_answer=a,
                         text=fake.paragraph(nb_sentences=4),
-                        owner=Profile.objects.get(user__username=ov_ca['owner']),
+                        owner=Profile.objects.get(user__username=ov_ca["owner"]),
                         show_username=bool(random.getrandbits(1)),
-                        votes=ov_ca['votes']
+                        votes=ov_ca["votes"],
                     )

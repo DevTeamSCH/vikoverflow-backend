@@ -14,23 +14,20 @@ class ReportStatus:
 
 
 class Report(models.Model):
-    STATUS_CHOICES = (
-        (ReportStatus.OPENED, _('Opened')),
-        (ReportStatus.CLOSED, _('Closed')),
-    )
+    STATUS_CHOICES = ((ReportStatus.OPENED, _("Opened")), (ReportStatus.CLOSED, _("Closed")))
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
     closed_at = models.DateTimeField(null=True)
     text = models.TextField()
-    reporter = models.ForeignKey(Profile, related_name='reports', on_delete=models.CASCADE)
+    reporter = models.ForeignKey(Profile, related_name="reports", on_delete=models.CASCADE)
     status = models.CharField(choices=STATUS_CHOICES, max_length=255, default=ReportStatus.OPENED)
     approved_by = models.ManyToManyField(User)
 
     # Generic relations for reports
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
 
     def __str__(self):
         return self.text
@@ -54,7 +51,7 @@ class ReportComment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     text = models.TextField()
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    report = models.ForeignKey(Report, related_name='comments', on_delete=models.CASCADE)
+    report = models.ForeignKey(Report, related_name="comments", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.text

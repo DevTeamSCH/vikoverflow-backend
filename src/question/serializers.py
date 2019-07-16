@@ -20,17 +20,8 @@ class CommentSerializer(AbstractCommentSerializer):
 
     class Meta:
         model = models.Comment
-        fields = (
-            'id',
-            'text',
-            'show_username',
-            'created_at',
-            'updated_at',
-            'username',
-            'vote_count',
-            'user_vote',
-        )
-        read_only_fields = ('created_at', 'updated_at', 'username', 'vote_count', 'user_vote',)
+        fields = ("id", "text", "created_at", "updated_at", "owner", "vote_count", "user_vote")
+        read_only_fields = ("created_at", "updated_at", "username", "vote_count", "user_vote")
 
 
 class AnswerSerializer(AbstractCommentSerializer):
@@ -38,45 +29,22 @@ class AnswerSerializer(AbstractCommentSerializer):
 
     class Meta:
         model = models.Answer
-        fields = (
-            "id",
-            "text",
-            "owner",
-            "vote_count",
-            "user_vote",
-            "is_accepted",
-            "comments",
-        )
-        read_only_fields = (
-            "created_at",
-            "updated_at",
-            "owner",
-            "vote_count",
-            "user_vote",
-            "is_accepted",
-            "comments",
-        )
+        fields = ("id", "text", "owner", "vote_count", "user_vote", "is_accepted", "comments")
+        read_only_fields = ("created_at", "updated_at", "owner", "vote_count", "user_vote", "is_accepted", "comments")
 
 
 class QuestionSerializer(TaggitSerializer, AbstractCommentSerializer):
     comments = CommentSerializer(many=True)
-    answers = AnswerSerializer(many=True)
+    answers = serializers.SerializerMethodField()
     tags = TagListSerializerField()
 
     class Meta:
         model = models.Question
-        fields = (
-            "id",
-            "title",
-            "text",
-            "tags",
-            "owner",
-            "vote_count",
-            "user_vote",
-            "comments",
-            "answers",
-        )
+        fields = ("id", "title", "text", "tags", "owner", "vote_count", "user_vote", "comments", "answers")
         read_only_fields = ("created_at", "updated_at")
+
+    def get_answers(self, instance):
+        return AnswerSerializer(instance.answers.order_by("-is_accepted"), many=True, context=self.context).data
 
 
 class QuestionListSerializer(TaggitSerializer, AbstractCommentSerializer):
@@ -85,15 +53,7 @@ class QuestionListSerializer(TaggitSerializer, AbstractCommentSerializer):
 
     class Meta:
         model = models.Question
-        fields = (
-            "id",
-            "title",
-            "owner",
-            "vote_count",
-            "user_vote",
-            "answer_count",
-            "answered",
-        )
+        fields = ("id", "title", "owner", "vote_count", "user_vote", "answer_count", "answered")
         read_only_fields = ("created_at", "updated_at")
 
     def get_answer_count(self, obj):
