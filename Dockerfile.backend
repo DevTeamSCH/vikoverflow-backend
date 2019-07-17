@@ -1,0 +1,27 @@
+FROM python:3.6-alpine
+
+ENV PIP_NO_CACHE_DIR=false
+ENV CONFIG_FILE=/usr/src/app/config.yaml
+ENV DJANGO_SETTINGS_MODULE=vikoverflow.settings.base
+
+WORKDIR /usr/src/app
+
+COPY Pipfile Pipfile.lock example_config.yaml ./
+
+RUN apk add --no-cache --virtual .deps build-base jpeg-dev zlib-dev graphviz-dev musl-dev gcc postgresql-dev && \
+    pip install pipenv gunicorn && \
+    pipenv install --system --deploy --ignore-pipfile && \
+	apk del --no-cache .deps && \
+	apk add --no-cache libpq && \
+	mv example_config.yaml config.yaml
+	
+COPY ./src ./src
+
+WORKDIR /usr/src/app/src
+
+# Copy static files to /usr/src/app/static
+RUN python manage.py collectstatic --noinput
+
+EXPOSE 8000
+
+ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "vikoverflow.wsgi:application"]

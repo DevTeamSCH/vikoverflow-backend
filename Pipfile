@@ -12,13 +12,13 @@ pillow = "*"
 django-taggit = "*"
 django-taggit-serializer = "*"
 django-softdelete-it = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 "flake8" = "*"
 pycodestyle = "*"
 pylint = "*"
 django-extensions = "*"
-psycopg2-binary = "*"
 faker = "*"
 graphviz = {version = "*", sys_platform = "!= 'win32'"}
 pygraphviz = {version = "*", sys_platform = "!= 'win32'"}
