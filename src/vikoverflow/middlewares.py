@@ -10,8 +10,8 @@ class DeployUserLimitMiddleware:
 
     def __call__(self, request):
         if (
-            request.path.startswith("/api/v1/login")
-            or request.path.startswith("/api/v1/complete")
+            "/api/v1/login" in request.path
+            or "/api/v1/complete" in request.path
             or base.ALLOWED_USERS == ["*"]
         ):
             return self.get_response(request)
