@@ -13,6 +13,7 @@ django-taggit = "*"
 django-taggit-serializer = "*"
 django-softdelete-it = "*"
 psycopg2-binary = "*"
+drf-yasg = "*"
 
 [dev-packages]
 "flake8" = "*"
