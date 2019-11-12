@@ -8,12 +8,12 @@ django = "*"
 djangorestframework = "*"
 pyyaml = ">=4.2b1"
 django-social-authsch = "*"
-pillow = "*"
 django-taggit = "*"
 django-taggit-serializer = "*"
 django-softdelete-it = "*"
-psycopg2-binary = "*"
 drf-yasg = "*"
+pillow = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 "flake8" = "*"
@@ -21,8 +21,6 @@ pycodestyle = "*"
 pylint = "*"
 django-extensions = "*"
 faker = "*"
-graphviz = {version = "*", sys_platform = "!= 'win32'"}
-pygraphviz = {version = "*", sys_platform = "!= 'win32'"}
 parameterized = "*"
 
 [requires]
