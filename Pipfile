@@ -12,6 +12,8 @@ django-taggit = "*"
 django-taggit-serializer = "*"
 django-softdelete-it = "*"
 drf-yasg = "*"
+pillow = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 "flake8" = "*"
