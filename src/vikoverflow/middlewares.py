@@ -16,11 +16,8 @@ class DeployUserLimitMiddleware:
         ):
             return self.get_response(request)
 
-        if "/api/v1/accounts/me" in request.path and not request.user.is_authenticated:
-            return HttpResponse(status=401)
-
         if not request.user.is_authenticated:
-            return HttpResponseRedirect("/api/v1/login/authsch/")
+            return HttpResponse(status=401)
 
         if request.user.username in base.ALLOWED_USERS:
             return self.get_response(request)
