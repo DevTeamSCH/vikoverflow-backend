@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+django = "<3.0"
 djangorestframework = "*"
 pyyaml = ">=4.2b1"
 django-social-authsch = "*"
@@ -16,7 +16,7 @@ pillow = "*"
 psycopg2-binary = "*"
 
 [dev-packages]
-"flake8" = "*"
+flake8 = "*"
 pycodestyle = "*"
 pylint = "*"
 django-extensions = "*"
