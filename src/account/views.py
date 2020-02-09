@@ -2,12 +2,9 @@ from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.decorators import action
+from rest_framework.response import Response
 from django.shortcuts import redirect
-from rest_framework.decorators import (
-    api_view,
-    permission_classes,
-    authentication_classes,
-)
+from rest_framework.decorators import api_view
 
 from common.mixins import RelativeURLFieldMixin
 from .permissions import IsSafeMethodOrIsOwnOrIsAdmin
@@ -16,8 +13,9 @@ from . import serializers
 
 
 @api_view(["POST"])
-@permission_classes([permissions.AllowAny])
 def set_display_name(request):
+    if len(request.session.values()) == 0:
+        return Response(status=401)
     request.session["displayName"] = request.data["displayName"]
     return redirect("/api/v1/complete/authsch")
 
