@@ -10,5 +10,5 @@ router.register(r"avatar", views.AvatarViewSet)
 
 urlpatterns = router.urls + [
     path("logout/", LogoutView.as_view(next_page="/"), name="logout"),
-    path("display-name/", views.set_display_name),
+    path("auth/display-name/", views.set_display_name),
 ]
