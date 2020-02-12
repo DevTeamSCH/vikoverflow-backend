@@ -1,15 +1,17 @@
 FROM python:3.6-alpine
 
+ENV PYTHONUNBUFFERED=1
 ENV CONFIG_FILE=/code/config.yaml
 ENV PIP_NO_CACHE_DIR=false
 
 RUN apk add gcc python3-dev musl-dev postgresql-dev zlib-dev jpeg-dev libpq &&\
     pip install pipenv
 
-RUN mkdir /code
 WORKDIR /code
 
 COPY Pipfile Pipfile.lock /code/
 RUN pipenv install --system --dev
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
+COPY . /code/
+
+ENTRYPOINT ["sh", "docker-entrypoint.sh"]
