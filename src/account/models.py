@@ -9,6 +9,7 @@ class Profile(SoftDeleteModel):
     about_me = models.TextField(blank=True)
     is_score_visible = models.BooleanField(default=False)
     ranked = models.BooleanField(default=False)
+    display_name = models.CharField(max_length=50)
 
     @property
     def full_name(self):
